@@ -150,6 +150,52 @@
             <span>Fast+: 1 MHz</span>
           </div>
         </div>
+
+<p>
+    The <strong>I<sup>2</sup>C interface (Inter-Integrated Circuit)</strong> 
+    was developed by Philips engineers in their search for a relatively 
+    simple way to connect the various integrated circuits and components 
+    that make up a system. The objective was to enable all circuits to 
+    communicate through a common, standardized interface, thereby 
+    significantly reducing the complexity of the interconnection circuitry.
+    In response to this need, the two-wire serial I<sup>2</sup>C interface, 
+    also known as the I<sup>2</sup>C bus, was developed.
+</p>
+
+<p>The main characteristics of this bus are as follows:</p>
+
+<ul>
+    <li>
+        Only two lines are required for communication: a 
+        <strong>serial data line (SDA – Serial Data Line)</strong> 
+        and a <strong>serial clock line (SCL – Serial Clock Line)</strong>.
+    </li>
+
+    <li>
+        The I<sup>2</sup>C interface uses its own communication protocol, 
+        ensuring reliable 8-bit serial data transmission and reception.
+    </li>
+
+    <li>
+        Each device connected to the bus has a unique 
+        <strong>address</strong>, through which other devices can 
+        address it.
+    </li>
+
+    <li>
+        During data transfer between two devices, one always operates 
+        as the <strong>master</strong> and the other as the 
+        <strong>slave</strong>.
+    </li>
+
+    <li>
+        The master device initiates data transmission, generates 
+        the clock signal, and terminates the transmission. Typically, 
+        a microcontroller acts as the master, controlling data 
+        transfer across the entire bus.
+    </li>
+</ul>
+        
         <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mb-3">Open-Drain Topology & Wired-AND Bus Logic</h2>
         <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-4xl">
           Unlike push-pull interfaces (such as SPI or UART), <strong>I²C uses open-drain (or open-collector) drivers</strong> on both lines: 

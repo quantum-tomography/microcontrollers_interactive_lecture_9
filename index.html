@@ -195,6 +195,45 @@
         transfer across the entire bus.
     </li>
 </ul>
+
+<p>
+    As mentioned above, in the I<sup>2</sup>C interface protocol, 
+    each device has its own address. When the master device wants 
+    to initiate a data transfer, it first generates a 
+    <strong>START condition</strong>, followed by the address of 
+    the device with which it wishes to communicate.
+</p>
+
+<p>
+    During this process, all devices connected to the bus "listen" 
+    to determine whether the transmitted address matches their own. 
+    The slave device that recognizes its address generates an 
+    <strong>acknowledgment (ACK)</strong>, thereby informing the 
+    master that it is ready for communication.
+</p>
+
+<p>
+    One bit in the transmitted address sequence (typically the last 
+    bit) determines whether the master intends to read data from 
+    or write data to the slave device. Therefore, during data 
+    transfer, the master and slave always operate in opposite 
+    modes (transmitter/receiver). In both cases, however, the 
+    master generates the clock signal.
+</p>
+
+<p>
+    During communication between the master and the slave, the 
+    receiving device generates an acknowledgment for each 
+    successfully received byte (8 bits). If no acknowledgment 
+    is received, this indicates that the data transfer should 
+    be terminated.
+</p>
+
+<p>
+    Once the required data has been transferred, the master 
+    generates a <strong>STOP condition</strong>, thereby 
+    releasing the bus.
+</p>
         
         <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mb-3">Open-Drain Topology & Wired-AND Bus Logic</h2>
         <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-4xl">

@@ -152,7 +152,7 @@
         </div>
 
 <p>
-    The <strong>I<sup>2</sup>C interface (Inter-Integrated Circuit)</strong> 
+    ① The <strong>I<sup>2</sup>C interface (Inter-Integrated Circuit)</strong> 
     was developed by Philips engineers in their search for a relatively 
     simple way to connect the various integrated circuits and components 
     that make up a system. The objective was to enable all circuits to 
@@ -162,34 +162,34 @@
     also known as the I<sup>2</sup>C bus, was developed.
 </p>
 
-<p>The main characteristics of this bus are as follows:</p>
+<p>② The main characteristics of this bus are as follows:</p>
 
 <ul>
     <li>
-        Only two lines are required for communication: a 
+        ③ Only two lines are required for communication: a 
         <strong>serial data line (SDA – Serial Data Line)</strong> 
         and a <strong>serial clock line (SCL – Serial Clock Line)</strong>.
     </li>
 
     <li>
-        The I<sup>2</sup>C interface uses its own communication protocol, 
+        ④ The I<sup>2</sup>C interface uses its own communication protocol, 
         ensuring reliable 8-bit serial data transmission and reception.
     </li>
 
     <li>
-        Each device connected to the bus has a unique 
+        ⑤ Each device connected to the bus has a unique 
         <strong>address</strong>, through which other devices can 
         address it.
     </li>
 
     <li>
-        During data transfer between two devices, one always operates 
+        ⑥ During data transfer between two devices, one always operates 
         as the <strong>master</strong> and the other as the 
         <strong>slave</strong>.
     </li>
 
     <li>
-        The master device initiates data transmission, generates 
+        ⑦ The master device initiates data transmission, generates 
         the clock signal, and terminates the transmission. Typically, 
         a microcontroller acts as the master, controlling data 
         transfer across the entire bus.
@@ -197,7 +197,7 @@
 </ul>
 
 <p>
-    As mentioned above, in the I<sup>2</sup>C interface protocol, 
+    ⑧ As mentioned above, in the I<sup>2</sup>C interface protocol, 
     each device has its own address. When the master device wants 
     to initiate a data transfer, it first generates a 
     <strong>START condition</strong>, followed by the address of 
@@ -205,7 +205,7 @@
 </p>
 
 <p>
-    During this process, all devices connected to the bus "listen" 
+    ⑨ During this process, all devices connected to the bus "listen" 
     to determine whether the transmitted address matches their own. 
     The slave device that recognizes its address generates an 
     <strong>acknowledgment (ACK)</strong>, thereby informing the 
@@ -213,7 +213,7 @@
 </p>
 
 <p>
-    One bit in the transmitted address sequence (typically the last 
+    ⑩ One bit in the transmitted address sequence (typically the last 
     bit) determines whether the master intends to read data from 
     or write data to the slave device. Therefore, during data 
     transfer, the master and slave always operate in opposite 
@@ -222,7 +222,7 @@
 </p>
 
 <p>
-    During communication between the master and the slave, the 
+    ⑪ During communication between the master and the slave, the 
     receiving device generates an acknowledgment for each 
     successfully received byte (8 bits). If no acknowledgment 
     is received, this indicates that the data transfer should 
@@ -230,25 +230,25 @@
 </p>
 
 <p>
-    Once the required data has been transferred, the master 
+    ⑫ Once the required data has been transferred, the master 
     generates a <strong>STOP condition</strong>, thereby 
     releasing the bus.
 </p>
 
 <p>
-    In addition to the communication procedure described above, 
+    ⑬ In addition to the communication procedure described above, 
     the I<sup>2</sup>C interface protocol defines two fundamental 
     rules that ensure successful communication over the bus:
 </p>
 
 <ol>
     <li>
-        Data transfer can only be initiated if the bus is not 
+        ⑭ Data transfer can only be initiated if the bus is not 
         occupied by other devices.
     </li>
 
     <li>
-        During data transfer, the logic level of the serial data 
+        ⑮ During data transfer, the logic level of the serial data 
         line (SDA) must remain stable while the serial clock line 
         (SCL) is HIGH. A change in the logic level of SDA while 
         SCL is HIGH is interpreted as either a 
@@ -257,59 +257,59 @@
     </li>
 </ol>
 
-<h3>A) Bus Idle (Bus Not Busy)</h3>
+<h3>⑯ A) Bus Idle (Bus Not Busy)</h3>
 
 <p>
-    Both the clock and data lines are at a HIGH logic level. 
+    ⑰ Both the clock and data lines are at a HIGH logic level. 
     This is achieved by connecting each line to the supply voltage 
     (V<sub>DD</sub>) through a <strong>pull-up resistor</strong>. 
     In this way, when the bus is not in use, both the SDA and SCL 
     lines remain HIGH.
 </p>
 
-<h3>B) START Condition (Beginning of Data Transfer)</h3>
+<h3>⑱ B) START Condition (Beginning of Data Transfer)</h3>
 
 <p>
-    This condition is defined as a transition from a HIGH to a LOW 
+    ⑲ This condition is defined as a transition from a HIGH to a LOW 
     logic level (from '1' to '0') on the SDA line while SCL 
     remains HIGH ('1').
 </p>
 
 <p>
-    After a <strong>START condition</strong> is generated, the bus 
+    ⑳ After a <strong>START condition</strong> is generated, the bus 
     is considered busy. The bus remains busy if a 
     <strong>Repeated START condition</strong> is generated instead 
     of a STOP condition.
 </p>
 
 <p>
-    Every data transfer sequence must be preceded by a START 
+    ㉑ Every data transfer sequence must be preceded by a START 
     condition.
 </p>
 
-<h3>C) STOP Condition (End of Data Transfer)</h3>
+<h3>㉒ C) STOP Condition (End of Data Transfer)</h3>
 
 <p>
-    This condition is defined as a transition from a LOW to a HIGH 
+    ㉓ This condition is defined as a transition from a LOW to a HIGH 
     logic level (from '0' to '1') on the SDA line while SCL 
     remains HIGH ('1').
 </p>
 
 <p>
-    Generating a <strong>STOP condition</strong> releases the bus, 
+    ㉔ Generating a <strong>STOP condition</strong> releases the bus, 
     making it available for use by other devices. Every complete 
     data transfer must end with a STOP condition.
 </p>
 
 <p>
-    Both START and STOP conditions are always generated by 
+    ㉕ Both START and STOP conditions are always generated by 
     the master device.
 </p>
 
-<h3>D) Data Validity</h3>
+<h3>㉖ D) Data Validity</h3>
 
 <p>
-    After the START condition, the state of the SDA line is 
+    ㉗ After the START condition, the state of the SDA line is 
     interpreted as valid data only if it remains stable while 
     the clock signal (SCL) is HIGH. The logic level, and 
     consequently the data on the SDA line, may change only 
@@ -317,15 +317,15 @@
 </p>
 
 <p>
-    Each clock pulse on the SCL line corresponds to one bit, 
+    ㉘ Each clock pulse on the SCL line corresponds to one bit, 
     whose value is determined by the current logic level 
     of the SDA line.
 </p>
 
-<h3>Data Transfer</h3>
+<h3>㉙ Data Transfer</h3>
 
 <p>
-    Every complete data transfer begins with a START condition 
+    ㉚ Every complete data transfer begins with a START condition 
     and ends with a STOP condition. Data is transmitted serially 
     over the bus in groups of 8 bits (one byte). The 
     I<sup>2</sup>C protocol imposes no limit on the number 
@@ -334,7 +334,7 @@
 </p>
 
 <p>
-    After receiving each byte, the receiving device indicates 
+    ㉛ After receiving each byte, the receiving device indicates 
     successful reception by generating an 
     <strong>acknowledgment bit (ACK)</strong>. When transmitting 
     a byte, the <strong>Most Significant Bit (MSB)</strong> 
@@ -342,29 +342,29 @@
 </p>
 
 <p>
-    If the slave device is performing another operation during 
+    ㉜ If the slave device is performing another operation during 
     data transfer and is not ready to receive or transmit 
     a byte, it may hold the SCL line LOW. This forces the 
     master to enter a waiting state.
 </p>
 
 <p>
-    When the slave device is ready to receive or transmit 
+    ㉝ When the slave device is ready to receive or transmit 
     the next byte, it releases the SCL line and the data 
     transfer continues. This mechanism is known as 
     <strong>clock stretching</strong>.
 </p>
 
-<h3>Acknowledgment (ACK)</h3>
+<h3>㉞ Acknowledgment (ACK)</h3>
 
 <p>
-    After each received byte, the receiving device indicates 
+    ㉟ After each received byte, the receiving device indicates 
     whether the byte has been accepted by generating an 
     acknowledgment (ACK) or a negative acknowledgment (NACK).
 </p>
 
 <p>
-    An acknowledgment is generated by pulling the SDA line 
+    ㊱ An acknowledgment is generated by pulling the SDA line 
     LOW during the HIGH period of the ninth clock pulse 
     on the SCL line. Therefore, during this clock pulse, 
     the transmitting device must release the SDA line, 
@@ -372,20 +372,20 @@
 </p>
 
 <p>
-    If the master is receiving data, it also generates an 
+    ㊲ If the master is receiving data, it also generates an 
     acknowledgment bit after each received byte, except 
     for the last one.
 </p>
 
 <p>
-    Upon receiving the final byte, the master generates a 
+    ㊳ Upon receiving the final byte, the master generates a 
     <strong>negative acknowledgment (NACK)</strong> by leaving 
     the SDA line HIGH during the ninth clock pulse. This 
     signals to the slave that it must stop transmitting data.
 </p>
 
 <p>
-    The slave then releases the SDA line, allowing the master 
+    ㊴ The slave then releases the SDA line, allowing the master 
     to generate the STOP condition.
 </p>
         

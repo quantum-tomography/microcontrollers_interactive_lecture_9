@@ -1,0 +1,2920 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxNDAxNTI2NzE5NzkwOTc2Mjg1NyIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzgyOTdlM2IyOTgxZmEzOGVfaW5kZXguaHRtbC0yMjMifSwiZXhwIjoxNzk1NTQ5ODA1LCJpYXQiOjE3OTU1NDYyMDUsImFsZyI6IlJTMjU2In0.L6cOEUeJquwBUx5lWxoUoal0v7d3XMUhsI9Dlsb69IDHr9p7Dt8ReIuN2FUS1GohOz_u_ikjw8ttAtrsapRkxco8cZJMOU8sL1z59FFZpvI54bD7PCmMBg1SlXdzdcwvKGyKMSfR0DuMrLd-H_hph42ZKx0zFUgosbOtd12E9mbFqQ-44XUZjpePnaC_0PgjpA5yylE9WRU-IMtgx1cmP92ZcsBoYhi1UB4i7J8mYywk7t2SEVwIrNSvu0iqON3SO-bl-nRgBPF7OuX6-CTVg41KsCVy2kSG79Au_YyUkOhABIkCQCCjyuiJ7yKiA8a40sd4FJJLpiwBlHpki9K2Rw","c_8297e3b2981fa38e_index.html-223")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I²C Protocol — Interactive Engineering Lecture &amp; Bus Simulator</title>
+  <!-- Tailwind CSS via CDN for responsive utility layout -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+          },
+          colors: {
+            lab: {
+              bg: '#0b0f17',
+              panel: '#111827',
+              card: '#161f32',
+              border: '#24314a',
+              cyan: '#06b6d4',
+              amber: '#f59e0b',
+              emerald: '#10b981',
+              rose: '#f43f5e',
+              violet: '#8b5cf6'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    /* Custom Scrollbar for Logic Analyzer & Code Views */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.4);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.5);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(6, 182, 212, 0.7);
+    }
+
+    /* Oscilloscope Grid Background */
+    .scope-grid {
+      background-size: 24px 24px;
+      background-image: 
+        linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    }
+    .dark .scope-grid {
+      background-image: 
+        linear-gradient(to right, rgba(56, 189, 248, 0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.07) 1px, transparent 1px);
+    }
+
+    /* Smooth transitions */
+    .wire-transition {
+      transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+    }
+
+    /* Pulse indicator for active bus lines */
+    @keyframes signalPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+    .signal-active {
+      animation: signalPulse 1.5s infinite;
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter, system-ui, -apple-system, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:JetBrains Mono, Fira Code, Consolas, monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.fixed{position:fixed}.sticky{position:sticky}.inset-0{inset:0px}.top-0{top:0px}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:0.25rem}.mb-1\.5{margin-bottom:0.375rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-12{margin-top:3rem}.mt-3{margin-top:0.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-16{height:4rem}.h-2\.5{height:0.625rem}.h-4{height:1rem}.h-44{height:11rem}.h-48{height:12rem}.h-5{height:1.25rem}.h-64{height:16rem}.h-72{height:18rem}.h-auto{height:auto}.h-6{height:1.5rem}.max-h-28{max-height:7rem}.w-10{width:2.5rem}.w-2\.5{width:0.625rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-full{width:100%}.w-6{width:1.5rem}.min-w-\[560px\]{min-width:560px}.min-w-\[780px\]{min-width:780px}.max-w-4xl{max-width:56rem}.max-w-7xl{max-width:80rem}.max-w-lg{max-width:32rem}.shrink-0{flex-shrink:0}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;user-select:none}.list-inside{list-style-position:inside}.list-decimal{list-style-type:decimal}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-x-1 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.25rem * var(--tw-space-x-reverse));margin-left:calc(0.25rem * calc(1 - var(--tw-space-x-reverse)))}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amber-500{--tw-border-opacity:1;border-color:rgb(245 158 11 / var(--tw-border-opacity, 1))}.border-amber-500\/30{border-color:rgb(245 158 11 / 0.3)}.border-cyan-500{--tw-border-opacity:1;border-color:rgb(6 182 212 / var(--tw-border-opacity, 1))}.border-cyan-500\/20{border-color:rgb(6 182 212 / 0.2)}.border-cyan-500\/30{border-color:rgb(6 182 212 / 0.3)}.border-emerald-500\/30{border-color:rgb(16 185 129 / 0.3)}.border-rose-500\/30{border-color:rgb(244 63 94 / 0.3)}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-amber-500\/15{background-color:rgb(245 158 11 / 0.15)}.bg-amber-500\/20{background-color:rgb(245 158 11 / 0.2)}.bg-amber-500\/5{background-color:rgb(245 158 11 / 0.05)}.bg-amber-600{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.bg-cyan-400{--tw-bg-opacity:1;background-color:rgb(34 211 238 / var(--tw-bg-opacity, 1))}.bg-cyan-500{--tw-bg-opacity:1;background-color:rgb(6 182 212 / var(--tw-bg-opacity, 1))}.bg-cyan-500\/10{background-color:rgb(6 182 212 / 0.1)}.bg-cyan-500\/15{background-color:rgb(6 182 212 / 0.15)}.bg-cyan-500\/20{background-color:rgb(6 182 212 / 0.2)}.bg-cyan-500\/5{background-color:rgb(6 182 212 / 0.05)}.bg-cyan-600{--tw-bg-opacity:1;background-color:rgb(8 145 178 / var(--tw-bg-opacity, 1))}.bg-emerald-500\/15{background-color:rgb(16 185 129 / 0.15)}.bg-emerald-500\/20{background-color:rgb(16 185 129 / 0.2)}.bg-emerald-500\/5{background-color:rgb(16 185 129 / 0.05)}.bg-rose-500\/20{background-color:rgb(244 63 94 / 0.2)}.bg-rose-500\/5{background-color:rgb(244 63 94 / 0.05)}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-100\/70{background-color:rgb(241 245 249 / 0.7)}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-950{--tw-bg-opacity:1;background-color:rgb(2 6 23 / var(--tw-bg-opacity, 1))}.bg-slate-950\/75{background-color:rgb(2 6 23 / 0.75)}.bg-transparent{background-color:transparent}.bg-violet-500\/15{background-color:rgb(139 92 246 / 0.15)}.bg-violet-500\/20{background-color:rgb(139 92 246 / 0.2)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/50{background-color:rgb(255 255 255 / 0.5)}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-cyan-500{--tw-gradient-from:#06b6d4 var(--tw-gradient-from-position);--tw-gradient-to:rgb(6 182 212 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-cyan-600{--tw-gradient-from:#0891b2 var(--tw-gradient-from-position);--tw-gradient-to:rgb(8 145 178 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.to-blue-600{--tw-gradient-to:#2563eb var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-2{padding:0.5rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.pb-3{padding-bottom:0.75rem}.pt-2{padding-top:0.5rem}.pt-4{padding-top:1rem}.text-left{text-align:left}.text-center{text-align:center}.font-mono{font-family:JetBrains Mono, Fira Code, Consolas, monospace}.font-sans{font-family:Inter, system-ui, -apple-system, sans-serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36 / var(--tw-text-opacity, 1))}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-cyan-400{--tw-text-opacity:1;color:rgb(34 211 238 / var(--tw-text-opacity, 1))}.text-cyan-500{--tw-text-opacity:1;color:rgb(6 182 212 / var(--tw-text-opacity, 1))}.text-cyan-600{--tw-text-opacity:1;color:rgb(8 145 178 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-emerald-500{--tw-text-opacity:1;color:rgb(16 185 129 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-rose-400{--tw-text-opacity:1;color:rgb(251 113 133 / var(--tw-text-opacity, 1))}.text-rose-600{--tw-text-opacity:1;color:rgb(225 29 72 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-violet-400{--tw-text-opacity:1;color:rgb(167 139 250 / var(--tw-text-opacity, 1))}.text-violet-600{--tw-text-opacity:1;color:rgb(124 58 237 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-sky-400{--tw-text-opacity:1;color:rgb(56 189 248 / var(--tw-text-opacity, 1))}.text-rose-500{--tw-text-opacity:1;color:rgb(244 63 94 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.accent-amber-500{accent-color:#f59e0b}.accent-cyan-500{accent-color:#06b6d4}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-cyan-500\/20{--tw-shadow-color:rgb(6 182 212 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.ring-cyan-500{--tw-ring-opacity:1;--tw-ring-color:rgb(6 182 212 / var(--tw-ring-opacity, 1))}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-200{transition-duration:200ms}.selection\:bg-cyan-500 *::selection{--tw-bg-opacity:1;background-color:rgb(6 182 212 / var(--tw-bg-opacity, 1))}.selection\:text-white *::selection{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.selection\:bg-cyan-500::selection{--tw-bg-opacity:1;background-color:rgb(6 182 212 / var(--tw-bg-opacity, 1))}.selection\:text-white::selection{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.hover\:border-cyan-500\/50:hover{border-color:rgb(6 182 212 / 0.5)}.hover\:bg-cyan-500:hover{--tw-bg-opacity:1;background-color:rgb(6 182 212 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:from-cyan-500:hover{--tw-gradient-from:#06b6d4 var(--tw-gradient-from-position);--tw-gradient-to:rgb(6 182 212 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-blue-500:hover{--tw-gradient-to:#3b82f6 var(--tw-gradient-to-position)}.hover\:text-slate-200:hover{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-cyan-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(6 182 212 / var(--tw-ring-opacity, 1))}.dark\:block:is(.dark *){display:block}.dark\:hidden:is(.dark *){display:none}.dark\:border-lab-border:is(.dark *){--tw-border-opacity:1;border-color:rgb(36 49 74 / var(--tw-border-opacity, 1))}.dark\:bg-lab-bg:is(.dark *){--tw-bg-opacity:1;background-color:rgb(11 15 23 / var(--tw-bg-opacity, 1))}.dark\:bg-lab-bg\/70:is(.dark *){background-color:rgb(11 15 23 / 0.7)}.dark\:bg-lab-card:is(.dark *){--tw-bg-opacity:1;background-color:rgb(22 31 50 / var(--tw-bg-opacity, 1))}.dark\:bg-lab-panel:is(.dark *){--tw-bg-opacity:1;background-color:rgb(17 24 39 / var(--tw-bg-opacity, 1))}.dark\:bg-lab-panel\/50:is(.dark *){background-color:rgb(17 24 39 / 0.5)}.dark\:bg-lab-panel\/90:is(.dark *){background-color:rgb(17 24 39 / 0.9)}.dark\:text-amber-400:is(.dark *){--tw-text-opacity:1;color:rgb(251 191 36 / var(--tw-text-opacity, 1))}.dark\:text-cyan-400:is(.dark *){--tw-text-opacity:1;color:rgb(34 211 238 / var(--tw-text-opacity, 1))}.dark\:text-emerald-400:is(.dark *){--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.dark\:text-rose-400:is(.dark *){--tw-text-opacity:1;color:rgb(251 113 133 / var(--tw-text-opacity, 1))}.dark\:text-slate-100:is(.dark *){--tw-text-opacity:1;color:rgb(241 245 249 / var(--tw-text-opacity, 1))}.dark\:text-slate-200:is(.dark *){--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.dark\:text-slate-300:is(.dark *){--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.dark\:text-slate-400:is(.dark *){--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.dark\:text-violet-400:is(.dark *){--tw-text-opacity:1;color:rgb(167 139 250 / var(--tw-text-opacity, 1))}.dark\:hover\:bg-slate-800:hover:is(.dark *){--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}@media (min-width: 640px){.sm\:block{display:block}.sm\:inline{display:inline}.sm\:inline-flex{display:inline-flex}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:gap-3{gap:0.75rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:py-8{padding-top:2rem;padding-bottom:2rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:col-span-2{grid-column:span 2 / span 2}.md\:inline{display:inline}.md\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}}@media (min-width: 1024px){.lg\:col-span-5{grid-column:span 5 / span 5}.lg\:col-span-7{grid-column:span 7 / span 7}.lg\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.lg\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.lg\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.lg\:px-8{padding-left:2rem;padding-right:2rem}}</style></head>
+<body class="bg-slate-50 text-slate-900 dark:bg-lab-bg dark:text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-white transition-colors duration-200">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-40 border-b border-slate-200 dark:border-lab-border bg-white/90 dark:bg-lab-panel/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <!-- Brand / Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 text-white font-mono font-bold text-lg">
+          I²C
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-base sm:text-lg tracking-tight">Inter-Integrated Circuit (I²C)</h1>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
+              Interactive Lab
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">2-Wire Serial Bus Architecture, Timing &amp; Logic Analyzer</p>
+        </div>
+      </div>
+
+      <!-- Right Controls -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Download index.html button for GitHub Pages deployment -->
+        <button id="btn-download-html" title="Download standalone index.html for GitHub Pages" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-lab-card dark:hover:bg-slate-800 border border-slate-200 dark:border-lab-border transition cursor-pointer">
+          <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          <span class="hidden md:inline">Export index.html</span>
+        </button>
+
+        <!-- GitHub Deploy Guide Modal Trigger -->
+        <button id="btn-github-info" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-lab-card dark:hover:bg-slate-800 border border-slate-200 dark:border-lab-border transition cursor-pointer">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+          </svg>
+          <span class="hidden sm:inline">GitHub Pages</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="btn-theme-toggle" aria-label="Toggle Dark/Light Theme" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-lab-card dark:hover:bg-slate-800 border border-slate-200 dark:border-lab-border transition cursor-pointer">
+          <!-- Sun Icon (shown in dark mode) -->
+          <svg id="icon-sun" class="w-4 h-4 text-amber-400 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <!-- Moon Icon (shown in light mode) -->
+          <svg id="icon-moon" class="w-4 h-4 text-slate-700 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CHAPTER NAVIGATION TABS -->
+    <nav class="border-t border-slate-200 dark:border-lab-border bg-slate-100/70 dark:bg-lab-bg/70 overflow-x-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 py-1.5" id="chapter-nav">
+        <button data-tab="mod1" class="nav-tab px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-400">
+          <span class="w-5 h-5 rounded-md bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono text-xs flex items-center justify-center font-bold">1</span>
+          Physical Layer &amp; Open-Drain
+        </button>
+        <button data-tab="mod2" class="nav-tab px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition flex items-center gap-2 cursor-pointer active-tab bg-white dark:bg-lab-card text-cyan-600 dark:text-cyan-400 shadow-xs border border-slate-200 dark:border-lab-border">
+          <span class="w-5 h-5 rounded-md bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono text-xs flex items-center justify-center font-bold">2</span>
+          Framing &amp; Bit-Level Timing
+        </button>
+        <button data-tab="mod3" class="nav-tab px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-400">
+          <span class="w-5 h-5 rounded-md bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-xs flex items-center justify-center font-bold">3</span>
+          Transaction Bus Simulator
+        </button>
+        <button data-tab="mod4" class="nav-tab px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-400">
+          <span class="w-5 h-5 rounded-md bg-violet-500/20 text-violet-600 dark:text-violet-400 font-mono text-xs flex items-center justify-center font-bold">4</span>
+          Clock Stretching &amp; Arbitration
+        </button>
+        <button data-tab="mod5" class="nav-tab px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-400">
+          <span class="w-5 h-5 rounded-md bg-rose-500/20 text-rose-600 dark:text-rose-400 font-mono text-xs flex items-center justify-center font-bold">5</span>
+          Engineering Quiz
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- ===================================================================== -->
+    <!-- MODULE 1: PHYSICAL LAYER & OPEN-DRAIN ARCHITECTURE                    -->
+    <!-- ===================================================================== -->
+    <section id="mod1" class="lecture-module space-y-6 hidden">
+      <!-- Lecture Header Card -->
+      <div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
+          <span class="text-xs font-mono uppercase tracking-wider text-cyan-600 dark:text-cyan-400 font-semibold">Module 01 • Electrical Interface</span>
+          <div class="flex items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400">
+            <span>Standard: 100 kHz</span>
+            <span>•</span>
+            <span>Fast: 400 kHz</span>
+            <span>•</span>
+            <span>Fast+: 1 MHz</span>
+          </div>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mb-3">Open-Drain Topology &amp; Wired-AND Bus Logic</h2>
+        <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-4xl">
+          Unlike push-pull interfaces (such as SPI or UART), <strong>I²C uses open-drain (or open-collector) drivers</strong> on both lines: 
+          <span class="font-mono text-cyan-600 dark:text-cyan-400 font-semibold">SDA</span> (Serial Data) and 
+          <span class="font-mono text-amber-600 dark:text-amber-400 font-semibold">SCL</span> (Serial Clock). 
+          Devices can only actively pull a line <strong>LOW (0V / GND)</strong> using an internal N-channel MOSFET. They <em>never</em> actively drive the line HIGH. Instead, external <strong>pull-up resistors ($R_p$)</strong> connected to $V_{DD}$ passively pull the lines HIGH when all MOSFETs are turned OFF. This prevents bus contention short-circuits when multiple devices share the same two wires.
+        </p>
+      </div>
+
+      <!-- Interactive Open-Drain Schematic + RC Rise Time Workbench -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Interactive Schematic (7 cols) -->
+        <div class="lg:col-span-7 rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-5 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-bold text-base">Interactive Open-Drain Bus Schematic</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Toggle device N-MOSFET gates below to observe wired-AND bus levels</p>
+              </div>
+              <div class="flex items-center gap-3 font-mono text-xs">
+                <span id="badge-scl-state" class="px-2.5 py-1 rounded-md font-bold bg-amber-500/20 text-amber-500 border border-amber-500/30">SCL: HIGH (3.3V)</span>
+                <span id="badge-sda-state" class="px-2.5 py-1 rounded-md font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">SDA: HIGH (3.3V)</span>
+              </div>
+            </div>
+
+            <!-- Live SVG Circuit Diagram -->
+            <div class="rounded-xl border border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-bg scope-grid p-3 overflow-x-auto">
+              <svg id="svg-opendrain" viewBox="0 0 680 340" class="w-full h-auto min-w-[560px] select-none font-mono">
+                <!-- VDD Rail -->
+                <line x1="40" y1="28" x2="640" y2="28" stroke="#ef4444" stroke-width="3"></line>
+                <text x="45" y="20" fill="#ef4444" font-size="12" font-weight="bold">VDD (+3.3V)</text>
+
+                <!-- Pull-up Resistor Rp1 (SCL) -->
+                <line x1="110" y1="28" x2="110" y2="48" stroke="#ef4444" stroke-width="2"></line>
+                <rect x="102" y="48" width="16" height="36" rx="2" fill="none" stroke="#f59e0b" stroke-width="2"></rect>
+                <text x="64" y="70" fill="#f59e0b" font-size="11" font-weight="bold">Rp</text>
+                <line x1="110" y1="84" x2="110" y2="110" stroke="#f59e0b" stroke-width="2"></line>
+
+                <!-- Pull-up Resistor Rp2 (SDA) -->
+                <line x1="170" y1="28" x2="170" y2="48" stroke="#ef4444" stroke-width="2"></line>
+                <rect x="162" y="48" width="16" height="36" rx="2" fill="none" stroke="#06b6d4" stroke-width="2"></rect>
+                <text x="184" y="70" fill="#06b6d4" font-size="11" font-weight="bold">Rp</text>
+                <line x1="170" y1="84" x2="170" y2="145" stroke="#06b6d4" stroke-width="2"></line>
+
+                <!-- Bus Parasitic Capacitance Indicator -->
+                <line x1="600" y1="110" x2="600" y2="185" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3 3"></line>
+                <line x1="590" y1="185" x2="610" y2="185" stroke="#64748b" stroke-width="2"></line>
+                <line x1="590" y1="193" x2="610" y2="193" stroke="#64748b" stroke-width="2"></line>
+                <line x1="600" y1="193" x2="600" y2="215" stroke="#64748b" stroke-width="1.5"></line>
+                <line x1="592" y1="215" x2="608" y2="215" stroke="#64748b" stroke-width="2"></line>
+                <text x="615" y="193" fill="#94a3b8" font-size="10">C_bus</text>
+
+                <!-- MAIN BUS LINES -->
+                <!-- SCL Line -->
+                <line id="wire-scl" x1="80" y1="110" x2="620" y2="110" stroke="#f59e0b" stroke-width="3.5" class="wire-transition"></line>
+                <text x="42" y="114" fill="#f59e0b" font-size="12" font-weight="bold">SCL</text>
+
+                <!-- SDA Line -->
+                <line id="wire-sda" x1="80" y1="145" x2="620" y2="145" stroke="#06b6d4" stroke-width="3.5" class="wire-transition"></line>
+                <text x="42" y="149" fill="#06b6d4" font-size="12" font-weight="bold">SDA</text>
+
+                <!-- DEVICE 1: MASTER CONTROLLER -->
+                <g transform="translate(220, 175)">
+                  <rect x="0" y="0" width="130" height="145" rx="8" fill="rgba(30, 41, 59, 0.85)" stroke="#38bdf8" stroke-width="1.5"></rect>
+                  <text x="65" y="20" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="bold">MASTER MCU</text>
+
+                  <!-- Master SCL Tap & FET -->
+                  <line x1="32" y1="-65" x2="32" y2="45" stroke="#f59e0b" stroke-width="2"></line>
+                  <circle cx="32" cy="-65" r="4" fill="#f59e0b"></circle>
+                  <!-- FET Switch Graphic -->
+                  <rect x="16" y="45" width="32" height="36" rx="4" fill="#0f172a" stroke="#64748b"></rect>
+                  <line id="fet-m-scl" x1="32" y1="48" x2="22" y2="75" stroke="#f59e0b" stroke-width="2.5"></line>
+                  <text x="32" y="96" text-anchor="middle" fill="#94a3b8" font-size="9">SCL FET</text>
+                  <line x1="32" y1="81" x2="32" y2="115" stroke="#64748b" stroke-width="2"></line>
+                  <!-- GND -->
+                  <line x1="22" y1="115" x2="42" y2="115" stroke="#64748b" stroke-width="2"></line>
+                  <line x1="26" y1="120" x2="38" y2="120" stroke="#64748b" stroke-width="1.5"></line>
+
+                  <!-- Master SDA Tap & FET -->
+                  <line x1="98" y1="-30" x2="98" y2="45" stroke="#06b6d4" stroke-width="2"></line>
+                  <circle cx="98" cy="-30" r="4" fill="#06b6d4"></circle>
+                  <rect x="82" y="45" width="32" height="36" rx="4" fill="#0f172a" stroke="#64748b"></rect>
+                  <line id="fet-m-sda" x1="98" y1="48" x2="88" y2="75" stroke="#06b6d4" stroke-width="2.5"></line>
+                  <text x="98" y="96" text-anchor="middle" fill="#94a3b8" font-size="9">SDA FET</text>
+                  <line x1="98" y1="81" x2="98" y2="115" stroke="#64748b" stroke-width="2"></line>
+                  <line x1="88" y1="115" x2="108" y2="115" stroke="#64748b" stroke-width="2"></line>
+                  <line x1="92" y1="120" x2="104" y2="120" stroke="#64748b" stroke-width="1.5"></line>
+                </g>
+
+                <!-- DEVICE 2: SLAVE 1 (Sensor 0x48) -->
+                <g transform="translate(385, 175)">
+                  <rect x="0" y="0" width="105" height="145" rx="8" fill="rgba(30, 41, 59, 0.85)" stroke="#10b981" stroke-width="1.5"></rect>
+                  <text x="52" y="20" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="bold">SLAVE 0x48</text>
+
+                  <!-- Sense SCL -->
+                  <line x1="25" y1="-65" x2="25" y2="45" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 2"></line>
+                  <circle cx="25" cy="-65" r="3.5" fill="#f59e0b"></circle>
+                  <text x="25" y="62" text-anchor="middle" fill="#94a3b8" font-size="8">CLK IN</text>
+
+                  <!-- Slave 1 SDA FET -->
+                  <line x1="75" y1="-30" x2="75" y2="45" stroke="#06b6d4" stroke-width="2"></line>
+                  <circle cx="75" cy="-30" r="4" fill="#06b6d4"></circle>
+                  <rect x="59" y="45" width="32" height="36" rx="4" fill="#0f172a" stroke="#64748b"></rect>
+                  <line id="fet-s1-sda" x1="75" y1="48" x2="65" y2="75" stroke="#06b6d4" stroke-width="2.5"></line>
+                  <text x="75" y="96" text-anchor="middle" fill="#94a3b8" font-size="9">ACK/DATA</text>
+                  <line x1="75" y1="81" x2="75" y2="115" stroke="#64748b" stroke-width="2"></line>
+                  <line x1="65" y1="115" x2="85" y2="115" stroke="#64748b" stroke-width="2"></line>
+                </g>
+
+                <!-- DEVICE 3: SLAVE 2 (EEPROM 0x50) -->
+                <g transform="translate(505, 175)">
+                  <rect x="0" y="0" width="105" height="145" rx="8" fill="rgba(30, 41, 59, 0.85)" stroke="#8b5cf6" stroke-width="1.5"></rect>
+                  <text x="52" y="20" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="bold">SLAVE 0x50</text>
+
+                  <!-- Sense SCL -->
+                  <line x1="25" y1="-65" x2="25" y2="45" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 2"></line>
+                  <circle cx="25" cy="-65" r="3.5" fill="#f59e0b"></circle>
+                  <text x="25" y="62" text-anchor="middle" fill="#94a3b8" font-size="8">CLK IN</text>
+
+                  <!-- Slave 2 SDA FET -->
+                  <line x1="75" y1="-30" x2="75" y2="45" stroke="#06b6d4" stroke-width="2"></line>
+                  <circle cx="75" cy="-30" r="4" fill="#06b6d4"></circle>
+                  <rect x="59" y="45" width="32" height="36" rx="4" fill="#0f172a" stroke="#64748b"></rect>
+                  <line id="fet-s2-sda" x1="75" y1="48" x2="65" y2="75" stroke="#06b6d4" stroke-width="2.5"></line>
+                  <text x="75" y="96" text-anchor="middle" fill="#94a3b8" font-size="9">ACK/DATA</text>
+                  <line x1="75" y1="81" x2="75" y2="115" stroke="#64748b" stroke-width="2"></line>
+                  <line x1="65" y1="115" x2="85" y2="115" stroke="#64748b" stroke-width="2"></line>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Interactive MOSFET Gate Controls -->
+          <div class="mt-4 pt-4 border-t border-slate-200 dark:border-lab-border">
+            <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+              Click to Toggle Device Open-Drain MOSFETs (ON = Pulls Line to GND)
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <button id="toggle-m-scl" class="fet-btn p-2.5 rounded-xl border border-slate-300 dark:border-lab-border bg-slate-50 dark:bg-lab-card text-left transition cursor-pointer">
+                <div class="text-[11px] text-slate-500 dark:text-slate-400">Master SCL</div>
+                <div class="font-mono text-xs font-bold mt-0.5 text-slate-700 dark:text-slate-200" id="status-m-scl">OFF (Hi-Z)</div>
+              </button>
+              <button id="toggle-m-sda" class="fet-btn p-2.5 rounded-xl border border-slate-300 dark:border-lab-border bg-slate-50 dark:bg-lab-card text-left transition cursor-pointer">
+                <div class="text-[11px] text-slate-500 dark:text-slate-400">Master SDA</div>
+                <div class="font-mono text-xs font-bold mt-0.5 text-slate-700 dark:text-slate-200" id="status-m-sda">OFF (Hi-Z)</div>
+              </button>
+              <button id="toggle-s1-sda" class="fet-btn p-2.5 rounded-xl border border-slate-300 dark:border-lab-border bg-slate-50 dark:bg-lab-card text-left transition cursor-pointer">
+                <div class="text-[11px] text-slate-500 dark:text-slate-400">Slave 0x48 SDA</div>
+                <div class="font-mono text-xs font-bold mt-0.5 text-slate-700 dark:text-slate-200" id="status-s1-sda">OFF (Hi-Z)</div>
+              </button>
+              <button id="toggle-s2-sda" class="fet-btn p-2.5 rounded-xl border border-slate-300 dark:border-lab-border bg-slate-50 dark:bg-lab-card text-left transition cursor-pointer">
+                <div class="text-[11px] text-slate-500 dark:text-slate-400">Slave 0x50 SDA</div>
+                <div class="font-mono text-xs font-bold mt-0.5 text-slate-700 dark:text-slate-200" id="status-s2-sda">OFF (Hi-Z)</div>
+              </button>
+            </div>
+            <div id="wired-and-explanation" class="mt-3 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-slate-700 dark:text-slate-300 font-medium"><strong>All MOSFETs are OFF (High-Impedance):</strong> Pull-up resistors $R_p$ charge both SCL and SDA to $V_{DD}$ (3.3V). The bus is in the IDLE state.</div>
+          </div>
+        </div>
+
+        <!-- Pull-Up Resistor & RC Rise-Time Simulator (5 cols) -->
+        <div class="lg:col-span-5 rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-5 flex flex-col justify-between shadow-sm">
+          <div>
+            <h3 class="font-bold text-base mb-1">Pull-Up Resistor ($R_p$) &amp; RC Rise-Time Lab</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              Because lines are pulled HIGH passively through $R_p$, parasitic bus capacitance ($C_{bus}$) creates an RC charging curve: $t_r \approx 0.8473 \times R_p \times C_{bus}$.
+            </p>
+
+            <!-- Sliders -->
+            <div class="space-y-4 mb-4">
+              <div>
+                <div class="flex justify-between text-xs font-mono mb-1">
+                  <span class="text-slate-600 dark:text-slate-300">Pull-Up Resistor ($R_p$)</span>
+                  <span id="val-rp" class="font-bold text-cyan-600 dark:text-cyan-400">1.0 kΩ</span>
+                </div>
+                <input id="slider-rp" type="range" min="1" max="47" step="0.5" value="4.7" class="w-full accent-cyan-500 cursor-pointer">
+                <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                  <span>1 kΩ (Strong)</span>
+                  <span>4.7 kΩ (Typical)</span>
+                  <span>47 kΩ (Weak)</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-mono mb-1">
+                  <span class="text-slate-600 dark:text-slate-300">Bus Capacitance ($C_{bus}$)</span>
+                  <span id="val-cbus" class="font-bold text-amber-600 dark:text-amber-400">80 pF</span>
+                </div>
+                <input id="slider-cbus" type="range" min="20" max="400" step="10" value="100" class="w-full accent-amber-500 cursor-pointer">
+                <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                  <span>20 pF (Short trace)</span>
+                  <span>200 pF</span>
+                  <span>400 pF (I²C Max)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Oscilloscope Rise Time Canvas -->
+            <div class="rounded-xl border border-slate-200 dark:border-lab-border bg-slate-900 p-3">
+              <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1">
+                <span>CH1: SDA Rising Edge (0V → 3.3V)</span>
+                <span id="rc-status-badge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">Fast Mode (400 kHz) OK</span>
+              </div>
+              <canvas id="canvas-rc" class="w-full h-44 block rounded" width="1030" height="220"></canvas>
+            </div>
+          </div>
+
+          <!-- Calculated Engineering Metrics -->
+          <div class="mt-4 grid grid-cols-3 gap-2 text-center font-mono">
+            <div class="p-2.5 rounded-xl bg-slate-100 dark:bg-lab-card border border-slate-200 dark:border-lab-border">
+              <div class="text-[10px] text-slate-500 dark:text-slate-400">Rise Time ($t_r$)</div>
+              <div id="metric-tr" class="text-xs sm:text-sm font-bold text-cyan-600 dark:text-cyan-400 mt-0.5">68 ns</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-100 dark:bg-lab-card border border-slate-200 dark:border-lab-border">
+              <div class="text-[10px] text-slate-500 dark:text-slate-400">Sink Current ($I_{OL}$)</div>
+              <div id="metric-iol" class="text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 mt-0.5">3.30 mA</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-100 dark:bg-lab-card border border-slate-200 dark:border-lab-border">
+              <div class="text-[10px] text-slate-500 dark:text-slate-400">Max Bus Speed</div>
+              <div id="metric-speed" class="text-xs sm:text-sm font-bold text-emerald-500 mt-0.5">400 kHz</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- MODULE 2: PROTOCOL FRAMING & BIT-LEVEL TIMING                         -->
+    <!-- ===================================================================== -->
+    <section id="mod2" class="lecture-module space-y-6">
+      <div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-6 shadow-sm">
+        <span class="text-xs font-mono uppercase tracking-wider text-amber-600 dark:text-amber-400 font-semibold">Module 02 • Synchronization &amp; Packet Structure</span>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-1 mb-3">Bit-Level Timing, START/STOP Conditions &amp; ACK/NACK</h2>
+        <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-4xl">
+          <strong>Golden Rule of I²C Data Validity:</strong> During normal data transfer, <span class="font-mono text-cyan-600 dark:text-cyan-400 font-semibold">SDA</span> may only change state while <span class="font-mono text-amber-600 dark:text-amber-400 font-semibold">SCL</span> is <strong>LOW</strong>, and must remain stable while <strong>SCL is HIGH</strong>. The <em>only</em> exceptions are the <strong>START (S)</strong> and <strong>STOP (P)</strong> framing conditions, which occur when SDA transitions while SCL is held HIGH.
+        </p>
+
+        <!-- Key Framing Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+          <div class="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
+            <div class="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">START Condition (S)</div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">SDA transitions <strong>HIGH → LOW</strong> while SCL is held <strong>HIGH</strong>. Claims the bus.</p>
+          </div>
+          <div class="p-3.5 rounded-xl border border-cyan-500/30 bg-cyan-500/5">
+            <div class="font-mono text-xs font-bold text-cyan-600 dark:text-cyan-400">7-Bit Addr + R/W</div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">MSB first (Bits 7..1), followed by <strong>0 = Write</strong> or <strong>1 = Read</strong> (Bit 0).</p>
+          </div>
+          <div class="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5">
+            <div class="font-mono text-xs font-bold text-amber-600 dark:text-amber-400">9th Clock: ACK / NACK</div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Transmitter releases SDA; receiver pulls SDA <strong>LOW (0)</strong> to ACK, or leaves <strong>HIGH (1)</strong> for NACK.</p>
+          </div>
+          <div class="p-3.5 rounded-xl border border-rose-500/30 bg-rose-500/5">
+            <div class="font-mono text-xs font-bold text-rose-600 dark:text-rose-400">STOP Condition (P)</div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">SDA transitions <strong>LOW → HIGH</strong> while SCL is held <strong>HIGH</strong>. Releases the bus.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Step-by-Step Timing Diagram -->
+      <div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div>
+            <h3 class="font-bold text-lg">Interactive Frame Stepper: Write Byte <code class="text-cyan-500">0xA5</code> to Slave <code class="text-amber-500">0x48</code></h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Step through each clock cycle to inspect SCL/SDA transitions and bus ownership</p>
+          </div>
+
+          <!-- Playback Controls -->
+          <div class="flex items-center gap-2">
+            <button id="btn-step-prev" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-lab-card dark:hover:bg-slate-800 border border-slate-200 dark:border-lab-border transition cursor-pointer">
+              ◀ Prev Step
+            </button>
+            <button id="btn-step-play" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-cyan-600 hover:bg-cyan-500 text-white shadow-sm transition cursor-pointer">▶ Auto-Play</button>
+            <button id="btn-step-next" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-lab-card dark:hover:bg-slate-800 border border-slate-200 dark:border-lab-border transition cursor-pointer">
+              Next Step ▶
+            </button>
+            <button id="btn-step-reset" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-lab-card dark:hover:bg-slate-800 border border-slate-200 dark:border-lab-border transition cursor-pointer">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Timing Diagram Canvas -->
+        <div class="rounded-xl border border-slate-200 dark:border-lab-border bg-slate-950 p-3 overflow-x-auto">
+          <canvas id="canvas-framing" class="w-full min-w-[780px] h-72 block" width="1020" height="360"></canvas>
+        </div>
+
+        <!-- Live Step Inspector Box -->
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="md:col-span-2 p-4 rounded-xl bg-slate-100 dark:bg-lab-card border border-slate-200 dark:border-lab-border">
+            <div class="flex items-center justify-between mb-1">
+              <span id="step-badge" class="px-2.5 py-0.5 rounded-md font-mono text-xs font-bold bg-emerald-500/20 text-emerald-500">STEP 20 / 20 : P</span>
+              <span id="step-driver" class="text-xs font-mono text-slate-500 dark:text-slate-400">Active Driver: Master MCU</span>
+            </div>
+            <h4 id="step-title" class="font-bold text-base mt-1">STOP Condition (P)</h4>
+            <p id="step-desc" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">While holding SCL HIGH, Master releases SDA from LOW → HIGH. The transaction is complete and the bus returns to IDLE.</p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-100 dark:bg-lab-card border border-slate-200 dark:border-lab-border flex flex-col justify-center font-mono text-xs space-y-2">
+            <div class="flex justify-between">
+              <span class="text-slate-500 dark:text-slate-400">Target Address:</span>
+              <span class="font-bold text-amber-500">0x48 (1001000₂)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500 dark:text-slate-400">Operation Bit:</span>
+              <span class="font-bold text-cyan-400">0 (WRITE)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500 dark:text-slate-400">Payload Byte:</span>
+              <span class="font-bold text-emerald-400">0xA5 (10100101₂)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500 dark:text-slate-400">Current Bit/Phase:</span>
+              <span id="step-bit-val" class="font-bold text-white bg-slate-800 px-2 py-0.5 rounded">SCL=1 | SDA=1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- MODULE 3: FULL TRANSACTION BUS SIMULATOR (MASTER <-> 3 SLAVES)        -->
+    <!-- ===================================================================== -->
+    <section id="mod3" class="lecture-module space-y-6 hidden">
+      <div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-6 shadow-sm">
+        <span class="text-xs font-mono uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold">Module 03 • Hands-On Logic Analyzer</span>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-1 mb-2">Interactive I²C Transaction Sandbox</h2>
+        <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed max-w-4xl">
+          Configure an I²C Master transaction and transmit it across a simulated 2-wire bus connected to three peripheral devices. Try addressing an unpopulated address (like <code class="text-rose-400 font-mono">0x3C</code>) to observe a <strong>NACK</strong> abort, or read/write registers on active slaves!
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Master Controller Configurator (5 cols) -->
+        <div class="lg:col-span-5 rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-5 space-y-4 shadow-sm">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-lab-border pb-3">
+            <h3 class="font-bold text-base flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
+              Master Controller Setup
+            </h3>
+            <span class="text-xs font-mono text-slate-400">7-Bit Addressing</span>
+          </div>
+
+          <!-- Target Address Selection -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+              1. Target Slave Address (7-bit Hex)
+            </label>
+            <select id="sim-target-addr" class="w-full rounded-xl border border-slate-300 dark:border-lab-border bg-slate-50 dark:bg-lab-card px-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-cyan-500">
+              <option value="0x48">0x48 — TMP102 Temp Sensor (Active)</option>
+              <option value="0x50">0x50 — 24LC256 EEPROM (Active)</option>
+              <option value="0x68">0x68 — MPU6050 6-Axis IMU (Active)</option>
+              <option value="0x3C">0x3C — Unconnected OLED (Will NACK!)</option>
+            </select>
+          </div>
+
+          <!-- Operation Type -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+              2. Transaction Mode
+            </label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" data-mode="WRITE" class="sim-mode-btn active-mode py-2.5 px-3 rounded-xl border font-mono text-xs font-bold transition cursor-pointer bg-cyan-600 text-white border-cyan-500">
+                WRITE (R/W = 0)
+              </button>
+              <button type="button" data-mode="READ" class="sim-mode-btn py-2.5 px-3 rounded-xl border font-mono text-xs font-bold transition cursor-pointer bg-slate-100 dark:bg-lab-card text-slate-700 dark:text-slate-300 border-slate-300 dark:border-lab-border">
+                READ (R/W = 1)
+              </button>
+            </div>
+          </div>
+
+          <!-- Register & Data Byte Inputs -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                3. Register Ptr (Hex)
+              </label>
+              <select id="sim-reg-addr" class="w-full rounded-xl border border-slate-300 dark:border-lab-border bg-slate-50 dark:bg-lab-card px-3 py-2 text-sm font-mono">
+                <option value="0x00">0x00 (Data / Temp)</option>
+                <option value="0x01">0x01 (Config Reg)</option>
+                <option value="0x02">0x02 (User Byte)</option>
+              </select>
+            </div>
+            <div id="sim-write-data-group">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                4. Write Byte (Hex)
+              </label>
+              <input id="sim-write-val" type="text" maxlength="4" value="0x7E" class="w-full rounded-xl border border-slate-300 dark:border-lab-border bg-slate-50 dark:bg-lab-card px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-cyan-500">
+            </div>
+          </div>
+
+          <!-- Execute Button -->
+          <button id="btn-run-sim" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-sm shadow-lg shadow-cyan-500/20 transition flex items-center justify-center gap-2 cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            Transmit I²C Frame on Bus
+          </button>
+
+          <!-- Transaction Log Output -->
+          <div class="rounded-xl bg-slate-950 border border-slate-800 p-3 font-mono text-xs">
+            <div class="text-slate-400 text-[11px] mb-1 flex justify-between">
+              <span>BUS TRANSACTION LOG</span>
+              <span id="sim-status-pill" class="text-emerald-400 font-bold">WRITE ACK OK</span>
+            </div>
+            <div id="sim-log-output" class="text-slate-200 space-y-1 max-h-28 overflow-y-auto leading-relaxed"><div><span class="text-emerald-400">[START]</span> Master claims bus.</div><div><span class="text-amber-400">[ADDR]</span> 0x48 (TMP102 Temp Sensor) + WRITE → <span class="text-emerald-400">ACK</span></div><div><span class="text-cyan-400">[REG]</span> Pointer set to 0x00 → <span class="text-emerald-400">ACK</span></div><div><span class="text-sky-400">[DATA]</span> Wrote 0x7E to Reg 0x00 → <span class="text-emerald-400">ACK</span></div><div><span class="text-rose-400">[STOP]</span> Transaction complete.</div></div>
+          </div>
+        </div>
+
+        <!-- Connected Slave Devices State Cards (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="slave-cards-container">
+            <!-- Slave 1: TMP102 -->
+            <div id="card-slave-0x48" class="slave-card rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-4 transition ring-2 ring-cyan-500">
+              <div class="flex items-center justify-between mb-2">
+                <span class="px-2 py-0.5 rounded font-mono text-xs font-bold bg-emerald-500/15 text-emerald-500">0x48</span>
+                <span class="text-[11px] font-mono text-slate-400">TMP102</span>
+              </div>
+              <h4 class="font-bold text-sm">Temp Sensor</h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-3">Digital Thermometer</p>
+              <div class="space-y-1.5 font-mono text-xs bg-slate-50 dark:bg-lab-bg p-2.5 rounded-xl border border-slate-200 dark:border-lab-border">
+                <div class="flex justify-between"><span class="text-slate-400">0x00 (Temp):</span><span id="reg-0x48-0x00" class="font-bold text-cyan-500">0x7E (126°C)</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">0x01 (Conf):</span><span id="reg-0x48-0x01" class="font-bold">0x60</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">0x02 (User):</span><span id="reg-0x48-0x02" class="font-bold">0x00</span></div>
+              </div>
+            </div>
+
+            <!-- Slave 2: 24LC256 -->
+            <div id="card-slave-0x50" class="slave-card rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-4 transition">
+              <div class="flex items-center justify-between mb-2">
+                <span class="px-2 py-0.5 rounded font-mono text-xs font-bold bg-violet-500/15 text-violet-400">0x50</span>
+                <span class="text-[11px] font-mono text-slate-400">24LC256</span>
+              </div>
+              <h4 class="font-bold text-sm">I²C EEPROM</h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-3">Non-Volatile Memory</p>
+              <div class="space-y-1.5 font-mono text-xs bg-slate-50 dark:bg-lab-bg p-2.5 rounded-xl border border-slate-200 dark:border-lab-border">
+                <div class="flex justify-between"><span class="text-slate-400">0x00 (Mem0):</span><span id="reg-0x50-0x00" class="font-bold text-cyan-500">0xCA</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">0x01 (Mem1):</span><span id="reg-0x50-0x01" class="font-bold">0xFE</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">0x02 (Mem2):</span><span id="reg-0x50-0x02" class="font-bold">0x42</span></div>
+              </div>
+            </div>
+
+            <!-- Slave 3: MPU6050 -->
+            <div id="card-slave-0x68" class="slave-card rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-4 transition">
+              <div class="flex items-center justify-between mb-2">
+                <span class="px-2 py-0.5 rounded font-mono text-xs font-bold bg-amber-500/15 text-amber-500">0x68</span>
+                <span class="text-[11px] font-mono text-slate-400">MPU6050</span>
+              </div>
+              <h4 class="font-bold text-sm">6-Axis IMU</h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-3">Accel + Gyroscope</p>
+              <div class="space-y-1.5 font-mono text-xs bg-slate-50 dark:bg-lab-bg p-2.5 rounded-xl border border-slate-200 dark:border-lab-border">
+                <div class="flex justify-between"><span class="text-slate-400">0x00 (AccX):</span><span id="reg-0x68-0x00" class="font-bold text-cyan-500">0x3F</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">0x01 (PwrM):</span><span id="reg-0x68-0x01" class="font-bold">0x01</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">0x02 (WHO):</span><span id="reg-0x68-0x02" class="font-bold">0x68</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Logic Analyzer Waveform Viewer -->
+          <div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-5 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <div>
+                <h3 class="font-bold text-sm">Decoded Protocol Logic Analyzer</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Scroll horizontally to inspect START, Address, R/W, ACK/NACK, Data &amp; STOP packets</p>
+              </div>
+              <div class="flex items-center gap-2 text-[11px] font-mono">
+                <span class="inline-flex items-center gap-1 text-amber-500"><span class="w-2.5 h-2.5 rounded-xs bg-amber-500 inline-block"></span>SCL</span>
+                <span class="inline-flex items-center gap-1 text-cyan-400"><span class="w-2.5 h-2.5 rounded-xs bg-cyan-400 inline-block"></span>SDA</span>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 dark:border-lab-border bg-slate-950 p-3 overflow-x-auto" id="analyzer-scroll-box">
+              <canvas id="canvas-analyzer" class="h-64 block" width="1407" height="312" style="width: 1126px; height: 250px;"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- MODULE 4: ADVANCED CONCEPTS (CLOCK STRETCHING & ARBITRATION)          -->
+    <!-- ===================================================================== -->
+    <section id="mod4" class="lecture-module space-y-6 hidden">
+      <div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-6 shadow-sm">
+        <span class="text-xs font-mono uppercase tracking-wider text-violet-600 dark:text-violet-400 font-semibold">Module 04 • Flow Control &amp; Multi-Master</span>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-1 mb-2">Clock Stretching &amp; Multi-Master Arbitration</h2>
+        <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-4xl">
+          Because both SCL and SDA are open-drain wired-AND lines, I²C natively supports two powerful mechanisms without extra control pins: <strong>slave-initiated flow control</strong> (Clock Stretching) and <strong>lossless multi-master collision resolution</strong> (Bus Arbitration).
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 4A: Clock Stretching Visualizer -->
+        <div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-6 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <h3 class="font-bold text-lg">1. Clock Stretching (Flow Control)</h3>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-mono bg-amber-500/15 text-amber-500 border border-amber-500/30">SCL Line</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+              If a slow slave (e.g., an ADC or EEPROM writing a page) needs more time before sending/receiving the next byte, it holds <strong>SCL LOW</strong> after the 8th or 9th bit. When the Master releases its SCL FET, it senses SCL is still LOW and waits until the slave releases SCL!
+            </p>
+
+            <div class="rounded-xl border border-slate-200 dark:border-lab-border bg-slate-950 p-3 mb-4">
+              <canvas id="canvas-stretch" class="w-full h-48 block" width="1020" height="240"></canvas>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-4">
+              <label class="text-xs font-semibold text-slate-600 dark:text-slate-300">Slave Processing Delay (Stretch Cycles):</label>
+              <div class="flex gap-2">
+                <button data-stretch="0" class="stretch-btn px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-100 dark:bg-lab-card border border-slate-300 dark:border-lab-border cursor-pointer">0 (None)</button>
+                <button data-stretch="2" class="stretch-btn active-stretch px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-amber-600 text-white border border-amber-500 cursor-pointer">2 Clocks</button>
+                <button data-stretch="4" class="stretch-btn px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-100 dark:bg-lab-card border border-slate-300 dark:border-lab-border cursor-pointer">4 Clocks</button>
+              </div>
+            </div>
+            <p id="stretch-caption" class="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-lab-card p-3 rounded-xl border border-slate-200 dark:border-lab-border">
+              Slave holds SCL LOW for 2 clock periods after bit 8. The Master pauses its clock generator until SCL rises high again.
+            </p>
+          </div>
+        </div>
+
+        <!-- 4B: Multi-Master Arbitration Visualizer -->
+        <div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-6 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <h3 class="font-bold text-lg">2. Multi-Master Bus Arbitration</h3>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-mono bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">Wired-AND</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+              If Master A and Master B issue a START simultaneously, both transmit their target address bit-by-bit while monitoring SDA. The moment one Master outputs a <strong>1 (releases SDA)</strong> while the other outputs a <strong>0 (pulls SDA LOW)</strong>, the bus reads <strong>0</strong>. The Master that tried to send <code>1</code> detects the mismatch, immediately loses arbitration, and switches to slave/listen mode—<strong>zero data is corrupted!</strong>
+            </p>
+
+            <div class="rounded-xl border border-slate-200 dark:border-lab-border bg-slate-950 p-3 mb-4">
+              <canvas id="canvas-arb" class="w-full h-48 block" width="1020" height="240"></canvas>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="grid grid-cols-2 gap-3 text-xs font-mono">
+              <div class="flex items-center justify-between bg-slate-100 dark:bg-lab-card p-2 rounded-lg border border-slate-200 dark:border-lab-border">
+                <span class="text-emerald-500 font-bold">Master A Addr:</span>
+                <select id="arb-master-a" class="bg-transparent font-bold focus:outline-none">
+                  <option value="0x24">0x24 (0100100₂)</option>
+                  <option value="0x20">0x20 (0100000₂)</option>
+                  <option value="0x50">0x50 (1010000₂)</option>
+                </select>
+              </div>
+              <div class="flex items-center justify-between bg-slate-100 dark:bg-lab-card p-2 rounded-lg border border-slate-200 dark:border-lab-border">
+                <span class="text-rose-400 font-bold">Master B Addr:</span>
+                <select id="arb-master-b" class="bg-transparent font-bold focus:outline-none">
+                  <option value="0x26">0x26 (0100110₂)</option>
+                  <option value="0x24">0x24 (0100100₂)</option>
+                  <option value="0x18">0x18 (0011000₂)</option>
+                </select>
+              </div>
+            </div>
+            <p id="arb-caption" class="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-lab-card p-3 rounded-xl border border-slate-200 dark:border-lab-border"><strong>Master A wins arbitration!</strong> On Address Bit A1, Master B released SDA HIGH (1) while Master A pulled SDA LOW (0). Master B sensed the mismatch and immediately yielded the bus without corrupting Master A's frame.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- MODULE 5: KNOWLEDGE CHECK / INTERACTIVE QUIZ                          -->
+    <!-- ===================================================================== -->
+    <section id="mod5" class="lecture-module hidden space-y-6">
+      <div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-mono uppercase tracking-wider text-rose-600 dark:text-rose-400 font-semibold">Module 05 • Assessment</span>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-1">I²C Protocol Engineering Quiz</h2>
+          <p class="text-slate-600 dark:text-slate-300 text-sm mt-1">Test your understanding of open-drain electronics, framing rules, and bus debugging.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-lab-card border border-slate-200 dark:border-lab-border font-mono text-sm">
+            Score: <span id="quiz-score" class="font-bold text-cyan-500">0</span> / 5
+          </div>
+          <button id="btn-reset-quiz" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-lab-card dark:hover:bg-slate-800 border border-slate-200 dark:border-lab-border transition cursor-pointer">
+            Reset Quiz
+          </button>
+        </div>
+      </div>
+
+      <div id="quiz-container" class="space-y-4"><div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-5 shadow-sm space-y-3"><h4 class="font-bold text-sm sm:text-base">1. Why must I²C devices use open-drain outputs with external pull-up resistors instead of push-pull outputs?</h4><div class="grid grid-cols-1 gap-2"><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                A
+              </span>
+              <span>To increase the maximum clock speed above 100 MHz</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                B
+              </span>
+              <span>To prevent high-current short circuits (bus contention) when multiple devices share SDA and SCL</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                C
+              </span>
+              <span>To eliminate the need for a shared ground reference between ICs</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                D
+              </span>
+              <span>Because open-drain drivers consume zero power when pulling a line LOW</span>
+            </button></div></div><div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-5 shadow-sm space-y-3"><h4 class="font-bold text-sm sm:text-base">2. Which electrical transition defines a valid I²C START condition?</h4><div class="grid grid-cols-1 gap-2"><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                A
+              </span>
+              <span>SCL transitions HIGH → LOW while SDA is held HIGH</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                B
+              </span>
+              <span>SDA transitions LOW → HIGH while SCL is held HIGH</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                C
+              </span>
+              <span>SDA transitions HIGH → LOW while SCL is held HIGH</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                D
+              </span>
+              <span>Both SDA and SCL transition HIGH → LOW simultaneously</span>
+            </button></div></div><div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-5 shadow-sm space-y-3"><h4 class="font-bold text-sm sm:text-base">3. During the 9th clock pulse after the Master sends a 7-bit address + Write bit, SDA remains HIGH (logic 1). What does this indicate?</h4><div class="grid grid-cols-1 gap-2"><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                A
+              </span>
+              <span>The addressed slave successfully acknowledged (ACK) the byte</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                B
+              </span>
+              <span>Clock stretching is currently active on the bus</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                C
+              </span>
+              <span>A NACK occurred—no slave recognized the address or the slave is busy/missing</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                D
+              </span>
+              <span>Multi-master arbitration was won by the Master</span>
+            </button></div></div><div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-5 shadow-sm space-y-3"><h4 class="font-bold text-sm sm:text-base">4. An engineer uses 47 kΩ pull-up resistors on a heavily loaded I²C bus (C_bus = 250 pF) running at 400 kHz Fast Mode. Oscilloscope probing shows rounded, slow rising edges that fail to reach V_IH in time. What is the best fix?</h4><div class="grid grid-cols-1 gap-2"><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                A
+              </span>
+              <span>Increase the pull-up resistor value to 100 kΩ</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                B
+              </span>
+              <span>Decrease the pull-up resistor value (e.g., to 2.2 kΩ or 4.7 kΩ) to reduce the RC time constant</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                C
+              </span>
+              <span>Remove the pull-up resistors completely</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                D
+              </span>
+              <span>Add extra capacitors in parallel with SDA and SCL</span>
+            </button></div></div><div class="rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-5 shadow-sm space-y-3"><h4 class="font-bold text-sm sm:text-base">5. During multi-master arbitration, Master 1 transmits address bit `1` while Master 2 transmits `0` on the same clock cycle. What happens next?</h4><div class="grid grid-cols-1 gap-2"><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                A
+              </span>
+              <span>Both masters detect a collision, abort immediately, and wait a random backoff time</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                B
+              </span>
+              <span>The bus voltage settles at 1.65V (half VDD) and corrupts the byte</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                C
+              </span>
+              <span>Master 1 senses SDA is 0 instead of 1, immediately loses arbitration, and stops driving SDA while Master 2 continues uninterrupted</span>
+            </button><button type="button" class="w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200">
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                D
+              </span>
+              <span>Master 1 forces the line HIGH to override Master 2</span>
+            </button></div></div></div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-200 dark:border-lab-border mt-12 py-6 bg-white/50 dark:bg-lab-panel/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+      <div>
+        <strong>I²C Interactive Engineering Lecture</strong> • Single-File HTML5/Canvas Architecture • Zero External Runtime Dependencies
+      </div>
+      <div class="flex items-center gap-4 font-mono">
+        <span>NXP UM10204 Spec Compliant</span>
+        <span>•</span>
+        <button id="footer-github-btn" class="text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer">Deploy to GitHub Pages</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- GITHUB PAGES DEPLOYMENT MODAL -->
+  <div id="modal-github" class="fixed inset-0 z-50 items-center justify-center bg-slate-950/75 backdrop-blur-xs p-4 hidden">
+    <div class="bg-white dark:bg-lab-panel border border-slate-200 dark:border-lab-border rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-lg flex items-center gap-2">
+          <svg class="w-5 h-5 text-cyan-500" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+          </svg>
+          Host on GitHub Pages in 60 Seconds
+        </h3>
+        <button id="btn-close-modal" class="text-slate-400 hover:text-slate-200 p-1 cursor-pointer">✕</button>
+      </div>
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        This entire interactive lecture and logic analyzer is packed into a single self-contained HTML file. Follow these steps to publish it live:
+      </p>
+      <ol class="list-decimal list-inside space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-lab-bg p-4 rounded-xl border border-slate-200 dark:border-lab-border font-mono">
+        <li>Click <strong>Export index.html</strong> in the top bar (or save this file as <code class="text-cyan-400">index.html</code>).</li>
+        <li>Create a new public repository on GitHub (e.g., <code class="text-amber-400">i2c-interactive-lecture</code>).</li>
+        <li>Upload <code class="text-cyan-400">index.html</code> to the root of your repository.</li>
+        <li>Go to <strong>Settings → Pages → Build and deployment</strong>, select <strong>Deploy from a branch (main / root)</strong>, and click <strong>Save</strong>.</li>
+      </ol>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="btn-modal-download" class="px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-600 hover:bg-cyan-500 text-white cursor-pointer">
+          Download index.html Now
+        </button>
+        <button id="btn-modal-done" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-200 dark:bg-lab-card text-slate-800 dark:text-slate-200 cursor-pointer">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- JAVASCRIPT ENGINE: SIMULATORS, WAVEFORM RENDERERS & QUIZ LOGIC          -->
+  <!-- ======================================================================= -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ---------------------------------------------------------------------
+       * 1. THEME MANAGEMENT & NAVIGATION TABS
+       * -------------------------------------------------------------------*/
+      const htmlEl = document.documentElement;
+      const themeToggleBtn = document.getElementById('btn-theme-toggle');
+
+      themeToggleBtn.addEventListener('click', () => {
+        htmlEl.classList.toggle('dark');
+        // Redraw canvases so grid/label colors adapt cleanly if needed
+        drawRCCurve();
+        drawFramingWaveform();
+        drawAnalyzerWaveform();
+        drawStretchWaveform();
+        drawArbitrationWaveform();
+      });
+
+      // Chapter Tab Switching
+      const navTabs = document.querySelectorAll('.nav-tab');
+      const modules = document.querySelectorAll('.lecture-module');
+
+      function updateTabStyles() {
+        navTabs.forEach(tab => {
+          if (tab.classList.contains('active-tab')) {
+            tab.classList.add('bg-white', 'dark:bg-lab-card', 'text-cyan-600', 'dark:text-cyan-400', 'shadow-xs', 'border', 'border-slate-200', 'dark:border-lab-border');
+            tab.classList.remove('text-slate-600', 'dark:text-slate-400');
+          } else {
+            tab.classList.remove('bg-white', 'dark:bg-lab-card', 'text-cyan-600', 'dark:text-cyan-400', 'shadow-xs', 'border', 'border-slate-200', 'dark:border-lab-border');
+            tab.classList.add('text-slate-600', 'dark:text-slate-400');
+          }
+        });
+      }
+      updateTabStyles();
+
+      navTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const targetId = tab.getAttribute('data-tab');
+          navTabs.forEach(t => t.classList.remove('active-tab'));
+          tab.classList.add('active-tab');
+          updateTabStyles();
+
+          modules.forEach(mod => {
+            if (mod.id === targetId) {
+              mod.classList.remove('hidden');
+            } else {
+              mod.classList.add('hidden');
+            }
+          });
+
+          // Trigger canvas resize & redraw when tab becomes visible
+          window.dispatchEvent(new Event('resize'));
+        });
+      });
+
+      /* ---------------------------------------------------------------------
+       * 2. GITHUB EXPORT & MODAL HANDLERS
+       * -------------------------------------------------------------------*/
+      function downloadStandaloneHTML() {
+        try {
+          const docHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+          const blob = new Blob([docHtml], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'index.html';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          console.error('Export failed:', err);
+        }
+      }
+
+      document.getElementById('btn-download-html').addEventListener('click', downloadStandaloneHTML);
+      document.getElementById('btn-modal-download').addEventListener('click', downloadStandaloneHTML);
+
+      const modalGithub = document.getElementById('modal-github');
+      const openGithubModal = () => { modalGithub.classList.remove('hidden'); modalGithub.classList.add('flex'); };
+      const closeGithubModal = () => { modalGithub.classList.add('hidden'); modalGithub.classList.remove('flex'); };
+
+      document.getElementById('btn-github-info').addEventListener('click', openGithubModal);
+      document.getElementById('footer-github-btn').addEventListener('click', openGithubModal);
+      document.getElementById('btn-close-modal').addEventListener('click', closeGithubModal);
+      document.getElementById('btn-modal-done').addEventListener('click', closeGithubModal);
+      modalGithub.addEventListener('click', (e) => { if (e.target === modalGithub) closeGithubModal(); });
+
+      /* ---------------------------------------------------------------------
+       * 3. MODULE 1: OPEN-DRAIN WIRED-AND SCHEMATIC & RC RISE-TIME LAB
+       * -------------------------------------------------------------------*/
+      const fetState = {
+        mScl: false,
+        mSda: false,
+        s1Sda: false,
+        s2Sda: false
+      };
+
+      function updateOpenDrainCircuit() {
+        const sclLow = fetState.mScl;
+        const sdaLow = fetState.mSda || fetState.s1Sda || fetState.s2Sda;
+
+        // Update SVG switches (closed = vertical line at x, open = angled line)
+        const setSwitchSvg = (id, isClosed, xCenter) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (isClosed) {
+            el.setAttribute('x2', xCenter);
+            el.setAttribute('y2', '81');
+            el.setAttribute('stroke', '#ef4444');
+          } else {
+            el.setAttribute('x2', xCenter - 10);
+            el.setAttribute('y2', '75');
+            el.setAttribute('stroke', id.includes('scl') ? '#f59e0b' : '#06b6d4');
+          }
+        };
+
+        setSwitchSvg('fet-m-scl', fetState.mScl, 32);
+        setSwitchSvg('fet-m-sda', fetState.mSda, 98);
+        setSwitchSvg('fet-s1-sda', fetState.s1Sda, 75);
+        setSwitchSvg('fet-s2-sda', fetState.s2Sda, 75);
+
+        // Update Bus Wire Colors
+        const wireScl = document.getElementById('wire-scl');
+        const wireSda = document.getElementById('wire-sda');
+        wireScl.setAttribute('stroke', sclLow ? '#ef4444' : '#f59e0b');
+        wireSda.setAttribute('stroke', sdaLow ? '#ef4444' : '#06b6d4');
+
+        // Update Header Badges
+        const badgeScl = document.getElementById('badge-scl-state');
+        const badgeSda = document.getElementById('badge-sda-state');
+
+        badgeScl.textContent = sclLow ? 'SCL: LOW (0V)' : 'SCL: HIGH (3.3V)';
+        badgeScl.className = sclLow
+          ? 'px-2.5 py-1 rounded-md font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30'
+          : 'px-2.5 py-1 rounded-md font-bold bg-amber-500/20 text-amber-500 border border-amber-500/30';
+
+        badgeSda.textContent = sdaLow ? 'SDA: LOW (0V)' : 'SDA: HIGH (3.3V)';
+        badgeSda.className = sdaLow
+          ? 'px-2.5 py-1 rounded-md font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30'
+          : 'px-2.5 py-1 rounded-md font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30';
+
+        // Update Button Labels
+        const updateBtnText = (btnId, statusId, active) => {
+          const btn = document.getElementById(btnId);
+          const st = document.getElementById(statusId);
+          if (active) {
+            st.textContent = 'ON (Pulling GND)';
+            st.className = 'font-mono text-xs font-bold mt-0.5 text-rose-400';
+            btn.classList.add('border-rose-500/60', 'bg-rose-500/10');
+          } else {
+            st.textContent = 'OFF (Hi-Z)';
+            st.className = 'font-mono text-xs font-bold mt-0.5 text-slate-700 dark:text-slate-200';
+            btn.classList.remove('border-rose-500/60', 'bg-rose-500/10');
+          }
+        };
+
+        updateBtnText('toggle-m-scl', 'status-m-scl', fetState.mScl);
+        updateBtnText('toggle-m-sda', 'status-m-sda', fetState.mSda);
+        updateBtnText('toggle-s1-sda', 'status-s1-sda', fetState.s1Sda);
+        updateBtnText('toggle-s2-sda', 'status-s2-sda', fetState.s2Sda);
+
+        // Dynamic Explanation Box
+        const expBox = document.getElementById('wired-and-explanation');
+        const activeSdaCount = [fetState.mSda, fetState.s1Sda, fetState.s2Sda].filter(Boolean).length;
+
+        if (activeSdaCount > 1) {
+          expBox.innerHTML = `<strong>Wired-AND Safety Demonstrated!</strong> ${activeSdaCount} devices are pulling SDA LOW simultaneously. Because I²C is open-drain, both simply connect SDA to GND—zero short-circuit damage occurs!`;
+        } else if (sdaLow && !sclLow) {
+          expBox.innerHTML = `<strong>SDA is LOW (0V) while SCL is HIGH (3.3V):</strong> A single active MOSFET sinks current through Rp ($I = V_{DD}/R_p$) to ground, pulling the entire SDA bus line LOW.`;
+        } else if (sclLow) {
+          expBox.innerHTML = `<strong>SCL is LOW (0V):</strong> The clock line is actively held low. During SCL LOW, devices are permitted to change their SDA data bits safely.`;
+        } else {
+          expBox.innerHTML = `<strong>All MOSFETs are OFF (High-Impedance):</strong> Pull-up resistors $R_p$ charge both SCL and SDA to $V_{DD}$ (3.3V). The bus is in the IDLE state.`;
+        }
+      }
+
+      document.getElementById('toggle-m-scl').addEventListener('click', () => { fetState.mScl = !fetState.mScl; updateOpenDrainCircuit(); });
+      document.getElementById('toggle-m-sda').addEventListener('click', () => { fetState.mSda = !fetState.mSda; updateOpenDrainCircuit(); });
+      document.getElementById('toggle-s1-sda').addEventListener('click', () => { fetState.s1Sda = !fetState.s1Sda; updateOpenDrainCircuit(); });
+      document.getElementById('toggle-s2-sda').addEventListener('click', () => { fetState.s2Sda = !fetState.s2Sda; updateOpenDrainCircuit(); });
+
+      // RC Rise-Time Simulator
+      const sliderRp = document.getElementById('slider-rp');
+      const sliderCbus = document.getElementById('slider-cbus');
+
+      function drawRCCurve() {
+        const canvas = document.getElementById('canvas-rc');
+        if (!canvas) return;
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width === 0) return;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const w = rect.width;
+        const h = rect.height;
+
+        const rpKOhm = parseFloat(sliderRp.value);
+        const cBusPf = parseFloat(sliderCbus.value);
+
+        document.getElementById('val-rp').textContent = `${rpKOhm.toFixed(1)} kΩ`;
+        document.getElementById('val-cbus').textContent = `${cBusPf} pF`;
+
+        // tr (30% to 70% of VDD per I2C spec) = 0.8473 * R * C
+        const tauNs = rpKOhm * cBusPf; // kOhm * pF = ns
+        const trNs = 0.8473 * tauNs;
+        const iolMa = 3.3 / rpKOhm;
+
+        document.getElementById('metric-tr').textContent = trNs >= 1000 ? `${(trNs / 1000).toFixed(2)} µs` : `${Math.round(trNs)} ns`;
+        document.getElementById('metric-iol').textContent = `${iolMa.toFixed(2)} mA`;
+
+        const badge = document.getElementById('rc-status-badge');
+        const speedEl = document.getElementById('metric-speed');
+
+        if (trNs <= 300) {
+          badge.textContent = 'Fast Mode (400 kHz) OK';
+          badge.className = 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400';
+          speedEl.textContent = '400 kHz';
+          speedEl.className = 'text-xs sm:text-sm font-bold text-emerald-500 mt-0.5';
+        } else if (trNs <= 1000) {
+          badge.textContent = 'Standard (100 kHz) OK';
+          badge.className = 'px-2 py-0.5 rounded bg-amber-500/20 text-amber-400';
+          speedEl.textContent = '100 kHz';
+          speedEl.className = 'text-xs sm:text-sm font-bold text-amber-500 mt-0.5';
+        } else {
+          badge.textContent = 'Too Slow (>1000 ns)!';
+          badge.className = 'px-2 py-0.5 rounded bg-rose-500/20 text-rose-400';
+          speedEl.textContent = 'FAIL (<100k)';
+          speedEl.className = 'text-xs sm:text-sm font-bold text-rose-500 mt-0.5';
+        }
+
+        // Clear background
+        ctx.fillStyle = '#090d16';
+        ctx.fillRect(0, 0, w, h);
+
+        // Draw grid & 30% / 70% threshold lines
+        const padL = 36, padR = 16, padT = 18, padB = 22;
+        const plotW = w - padL - padR;
+        const plotH = h - padT - padB;
+
+        const yHigh = padT;
+        const yLow = padT + plotH;
+        const y70 = yLow - 0.7 * plotH;
+        const y30 = yLow - 0.3 * plotH;
+
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+
+        // 70% V_IH line
+        ctx.beginPath(); ctx.moveTo(padL, y70); ctx.lineTo(w - padR, y70); ctx.stroke();
+        // 30% V_IL line
+        ctx.beginPath(); ctx.moveTo(padL, y30); ctx.lineTo(w - padR, y30); ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#64748b';
+        ctx.font = '10px JetBrains Mono, monospace';
+        ctx.fillText('70%', 6, y70 + 3);
+        ctx.fillText('30%', 6, y30 + 3);
+        ctx.fillText('0V', 12, yLow);
+
+        // Time window: 2500 ns full scale
+        const tMaxNs = 2500;
+        const tRelease = 250; // FET turns off at 250ns
+
+        ctx.strokeStyle = trNs > 1000 ? '#f43f5e' : '#06b6d4';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+
+        for (let px = 0; px <= plotW; px++) {
+          const t = (px / plotW) * tMaxNs;
+          let vNorm = 0;
+          if (t > tRelease) {
+            vNorm = 1 - Math.exp(-(t - tRelease) / tauNs);
+          }
+          const x = padL + px;
+          const y = yLow - vNorm * plotH;
+          if (px === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Time axis labels
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('0ns', padL, h - 6);
+        ctx.fillText('1.25µs', padL + plotW * 0.48, h - 6);
+        ctx.fillText('2.5µs', w - padR - 28, h - 6);
+      }
+
+      sliderRp.addEventListener('input', drawRCCurve);
+      sliderCbus.addEventListener('input', drawRCCurve);
+
+      /* ---------------------------------------------------------------------
+       * 4. MODULE 2: PROTOCOL FRAMING & BIT-LEVEL TIMING STEPPER
+       * -------------------------------------------------------------------*/
+      // Frame sequence: Write 0xA5 (10100101) to Slave 0x48 (1001000) + W(0)
+      const framingSteps = [
+        { label: 'IDLE', phase: 'IDLE', scl: 1, sda: 1, driver: 'Pull-Up Resistors', title: 'Bus Idle State', desc: 'Both SCL and SDA remain HIGH (3.3V). The bus is free for any Master to claim.' },
+        { label: 'S', phase: 'START', scl: 1, sda: 0, driver: 'Master MCU', title: 'START Condition (S)', desc: 'Master pulls SDA LOW while SCL is still HIGH. Every slave on the bus wakes up and prepares to sample the 7-bit address.' },
+        { label: 'A6', phase: 'ADDR', scl: 1, sda: 1, driver: 'Master MCU', title: 'Address Bit 6 (MSB) = 1', desc: 'Master sets SDA = 1 while SCL is LOW, then pulses SCL HIGH. Address 0x48 = 1001000₂.' },
+        { label: 'A5', phase: 'ADDR', scl: 1, sda: 0, driver: 'Master MCU', title: 'Address Bit 5 = 0', desc: 'Master pulls SDA LOW for Bit 5 and generates the 2nd SCL clock pulse.' },
+        { label: 'A4', phase: 'ADDR', scl: 1, sda: 0, driver: 'Master MCU', title: 'Address Bit 4 = 0', desc: 'Master keeps SDA LOW for Bit 4 on the 3rd SCL pulse.' },
+        { label: 'A3', phase: 'ADDR', scl: 1, sda: 1, driver: 'Master MCU', title: 'Address Bit 3 = 1', desc: 'Master releases SDA HIGH for Bit 3 on the 4th SCL pulse.' },
+        { label: 'A2', phase: 'ADDR', scl: 1, sda: 0, driver: 'Master MCU', title: 'Address Bit 2 = 0', desc: 'Master pulls SDA LOW for Bit 2 on the 5th SCL pulse.' },
+        { label: 'A1', phase: 'ADDR', scl: 1, sda: 0, driver: 'Master MCU', title: 'Address Bit 1 = 0', desc: 'Master keeps SDA LOW for Bit 1 on the 6th SCL pulse.' },
+        { label: 'A0', phase: 'ADDR', scl: 1, sda: 0, driver: 'Master MCU', title: 'Address Bit 0 (LSB) = 0', desc: 'Master keeps SDA LOW for Bit 0 on the 7th SCL pulse. Full 7-bit address 0x48 has been clocked out.' },
+        { label: 'R/W', phase: 'RW', scl: 1, sda: 0, driver: 'Master MCU', title: '8th Clock: Read/Write Bit = 0 (WRITE)', desc: 'Master drives SDA = 0 to indicate a WRITE operation (Master will send data to Slave 0x48).' },
+        { label: 'ACK', phase: 'ACK', scl: 1, sda: 0, driver: 'Slave 0x48', title: '9th Clock: Slave Acknowledge (ACK = 0)', desc: 'Master releases SDA. Slave 0x48 recognizes its address and pulls SDA LOW during the 9th SCL pulse to acknowledge!' },
+        { label: 'D7', phase: 'DATA', scl: 1, sda: 1, driver: 'Master MCU', title: 'Data Bit 7 (MSB) = 1', desc: 'Master begins transmitting data byte 0xA5 (10100101₂). Bit 7 is 1.' },
+        { label: 'D6', phase: 'DATA', scl: 1, sda: 0, driver: 'Master MCU', title: 'Data Bit 6 = 0', desc: 'Master drives SDA = 0 for Data Bit 6.' },
+        { label: 'D5', phase: 'DATA', scl: 1, sda: 1, driver: 'Master MCU', title: 'Data Bit 5 = 1', desc: 'Master drives SDA = 1 for Data Bit 5.' },
+        { label: 'D4', phase: 'DATA', scl: 1, sda: 0, driver: 'Master MCU', title: 'Data Bit 4 = 0', desc: 'Master drives SDA = 0 for Data Bit 4.' },
+        { label: 'D3', phase: 'DATA', scl: 1, sda: 0, driver: 'Master MCU', title: 'Data Bit 3 = 0', desc: 'Master drives SDA = 0 for Data Bit 3.' },
+        { label: 'D2', phase: 'DATA', scl: 1, sda: 1, driver: 'Master MCU', title: 'Data Bit 2 = 1', desc: 'Master drives SDA = 1 for Data Bit 2.' },
+        { label: 'D1', phase: 'DATA', scl: 1, sda: 0, driver: 'Master MCU', title: 'Data Bit 1 = 0', desc: 'Master drives SDA = 0 for Data Bit 1.' },
+        { label: 'D0', phase: 'DATA', scl: 1, sda: 1, driver: 'Master MCU', title: 'Data Bit 0 (LSB) = 1', desc: 'Master drives SDA = 1 for Data Bit 0. All 8 bits of 0xA5 are now sent.' },
+        { label: 'ACK', phase: 'ACK', scl: 1, sda: 0, driver: 'Slave 0x48', title: '18th Clock: Data Byte ACK = 0', desc: 'Slave 0x48 latches 0xA5 into its register and pulls SDA LOW on the 9th clock of the data byte.' },
+        { label: 'P', phase: 'STOP', scl: 1, sda: 1, driver: 'Master MCU', title: 'STOP Condition (P)', desc: 'While holding SCL HIGH, Master releases SDA from LOW → HIGH. The transaction is complete and the bus returns to IDLE.' }
+      ];
+
+      let currentFrameStep = 0;
+      let framePlayTimer = null;
+
+      function updateFramingInspector() {
+        const s = framingSteps[currentFrameStep];
+        document.getElementById('step-badge').textContent = `STEP ${currentFrameStep} / ${framingSteps.length - 1} : ${s.label}`;
+        document.getElementById('step-driver').textContent = `Active Driver: ${s.driver}`;
+        document.getElementById('step-title').textContent = s.title;
+        document.getElementById('step-desc').textContent = s.desc;
+        document.getElementById('step-bit-val').textContent = `SCL=${s.scl} | SDA=${s.sda}`;
+      }
+
+      function drawFramingWaveform() {
+        const canvas = document.getElementById('canvas-framing');
+        if (!canvas) return;
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width === 0) return;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const w = rect.width;
+        const h = rect.height;
+
+        ctx.fillStyle = '#070b14';
+        ctx.fillRect(0, 0, w, h);
+
+        const padL = 52;
+        const padR = 16;
+        const colW = (w - padL - padR) / framingSteps.length;
+
+        const sclHighY = 58, sclLowY = 108;
+        const sdaHighY = 148, sdaLowY = 202;
+
+        // Channel Labels
+        ctx.font = 'bold 12px JetBrains Mono, monospace';
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillText('SCL', 12, 86);
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillText('SDA', 12, 178);
+
+        // Phase color map
+        const phaseColors = {
+          IDLE: 'rgba(148, 163, 184, 0.12)',
+          START: 'rgba(16, 185, 129, 0.25)',
+          ADDR: 'rgba(245, 158, 11, 0.16)',
+          RW: 'rgba(139, 92, 246, 0.22)',
+          ACK: 'rgba(16, 185, 129, 0.22)',
+          DATA: 'rgba(6, 182, 212, 0.16)',
+          STOP: 'rgba(244, 63, 94, 0.25)'
+        };
+
+        // Draw Columns & Packet Header Boxes
+        framingSteps.forEach((step, idx) => {
+          const x = padL + idx * colW;
+
+          // Highlight active step column
+          if (idx === currentFrameStep) {
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.18)';
+            ctx.fillRect(x, 8, colW, h - 18);
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(x + 0.5, 8.5, colW - 1, h - 19);
+          }
+
+          // Vertical grid divider
+          ctx.strokeStyle = 'rgba(148, 163, 184, 0.12)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x, 34);
+          ctx.lineTo(x, h - 24);
+          ctx.stroke();
+
+          // Top Packet Badge
+          ctx.fillStyle = phaseColors[step.phase] || 'rgba(148,163,184,0.1)';
+          ctx.fillRect(x + 1.5, 12, colW - 3, 20);
+          ctx.fillStyle = idx === currentFrameStep ? '#ffffff' : '#cbd5e1';
+          ctx.font = 'bold 10px JetBrains Mono, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(step.label, x + colW / 2, 25);
+
+          // Bottom Bit Value
+          ctx.fillStyle = step.phase === 'ACK' ? '#10b981' : '#94a3b8';
+          ctx.fillText(step.phase === 'START' ? 'S' : step.phase === 'STOP' ? 'P' : step.sda.toString(), x + colW / 2, h - 10);
+        });
+        ctx.textAlign = 'left';
+
+        // Draw SCL Waveform up to currentFrameStep (or full faint preview)
+        const drawTraces = (maxIdx, alpha) => {
+          ctx.save();
+          ctx.globalAlpha = alpha;
+
+          // SCL Trace
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          let prevSclY = sclHighY;
+          ctx.moveTo(padL, prevSclY);
+
+          for (let i = 0; i <= maxIdx; i++) {
+            const st = framingSteps[i];
+            const x0 = padL + i * colW;
+            const x1 = x0 + colW;
+
+            if (st.phase === 'IDLE' || st.phase === 'START' || st.phase === 'STOP') {
+              ctx.lineTo(x0, sclHighY);
+              ctx.lineTo(x1, sclHighY);
+              prevSclY = sclHighY;
+            } else {
+              // Clock pulse: Low for first 35%, High for middle 45%, Low for trailing 20%
+              const tRise = x0 + colW * 0.30;
+              const tFall = x0 + colW * 0.80;
+              ctx.lineTo(x0, sclLowY);
+              ctx.lineTo(tRise, sclLowY);
+              ctx.lineTo(tRise, sclHighY);
+              ctx.lineTo(tFall, sclHighY);
+              ctx.lineTo(tFall, sclLowY);
+              ctx.lineTo(x1, sclLowY);
+              prevSclY = sclLowY;
+            }
+          }
+          ctx.stroke();
+
+          // SDA Trace
+          ctx.strokeStyle = '#06b6d4';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(padL, sdaHighY);
+
+          for (let i = 0; i <= maxIdx; i++) {
+            const st = framingSteps[i];
+            const x0 = padL + i * colW;
+            const x1 = x0 + colW;
+            const targetY = st.sda === 1 ? sdaHighY : sdaLowY;
+
+            if (st.phase === 'START') {
+              const xMid = x0 + colW * 0.5;
+              ctx.lineTo(xMid, sdaHighY);
+              ctx.lineTo(xMid, sdaLowY);
+              ctx.lineTo(x1, sdaLowY);
+            } else if (st.phase === 'STOP') {
+              const xMid = x0 + colW * 0.5;
+              ctx.lineTo(x0, sdaLowY);
+              ctx.lineTo(xMid, sdaLowY);
+              ctx.lineTo(xMid, sdaHighY);
+              ctx.lineTo(x1, sdaHighY);
+            } else if (st.phase === 'IDLE') {
+              ctx.lineTo(x1, sdaHighY);
+            } else {
+              // Data transitions smoothly near start of low clock
+              const xSetup = x0 + colW * 0.12;
+              ctx.lineTo(xSetup, targetY);
+              ctx.lineTo(x1, targetY);
+            }
+          }
+          ctx.stroke();
+          ctx.restore();
+        };
+
+        // Faint full trace background
+        drawTraces(framingSteps.length - 1, 0.22);
+        // Active bright trace up to current step
+        drawTraces(currentFrameStep, 1.0);
+      }
+
+      document.getElementById('btn-step-next').addEventListener('click', () => {
+        if (currentFrameStep < framingSteps.length - 1) {
+          currentFrameStep++;
+          updateFramingInspector();
+          drawFramingWaveform();
+        }
+      });
+
+      document.getElementById('btn-step-prev').addEventListener('click', () => {
+        if (currentFrameStep > 0) {
+          currentFrameStep--;
+          updateFramingInspector();
+          drawFramingWaveform();
+        }
+      });
+
+      document.getElementById('btn-step-reset').addEventListener('click', () => {
+        clearInterval(framePlayTimer);
+        framePlayTimer = null;
+        document.getElementById('btn-step-play').textContent = '▶ Auto-Play';
+        currentFrameStep = 0;
+        updateFramingInspector();
+        drawFramingWaveform();
+      });
+
+      document.getElementById('btn-step-play').addEventListener('click', () => {
+        const btn = document.getElementById('btn-step-play');
+        if (framePlayTimer) {
+          clearInterval(framePlayTimer);
+          framePlayTimer = null;
+          btn.textContent = '▶ Auto-Play';
+        } else {
+          if (currentFrameStep >= framingSteps.length - 1) currentFrameStep = 0;
+          btn.textContent = '⏸ Pause';
+          framePlayTimer = setInterval(() => {
+            if (currentFrameStep < framingSteps.length - 1) {
+              currentFrameStep++;
+              updateFramingInspector();
+              drawFramingWaveform();
+            } else {
+              clearInterval(framePlayTimer);
+              framePlayTimer = null;
+              btn.textContent = '▶ Auto-Play';
+            }
+          }, 650);
+        }
+      });
+
+      /* ---------------------------------------------------------------------
+       * 5. MODULE 3: FULL TRANSACTION BUS SIMULATOR & LOGIC ANALYZER
+       * -------------------------------------------------------------------*/
+      const slaveDevices = {
+        '0x48': { name: 'TMP102 Temp Sensor', regs: { '0x00': 0x19, '0x01': 0x60, '0x02': 0x00 } },
+        '0x50': { name: '24LC256 EEPROM', regs: { '0x00': 0xCA, '0x01': 0xFE, '0x02': 0x42 } },
+        '0x68': { name: 'MPU6050 IMU', regs: { '0x00': 0x3F, '0x01': 0x01, '0x02': 0x68 } }
+      };
+
+      let simMode = 'WRITE';
+      let analyzerPackets = [];
+
+      // Mode Toggle Buttons
+      document.querySelectorAll('.sim-mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          simMode = btn.getAttribute('data-mode');
+          document.querySelectorAll('.sim-mode-btn').forEach(b => {
+            if (b === btn) {
+              b.className = 'sim-mode-btn active-mode py-2.5 px-3 rounded-xl border font-mono text-xs font-bold transition cursor-pointer bg-cyan-600 text-white border-cyan-500';
+            } else {
+              b.className = 'sim-mode-btn py-2.5 px-3 rounded-xl border font-mono text-xs font-bold transition cursor-pointer bg-slate-100 dark:bg-lab-card text-slate-700 dark:text-slate-300 border-slate-300 dark:border-lab-border';
+            }
+          });
+          document.getElementById('sim-write-data-group').style.opacity = simMode === 'WRITE' ? '1' : '0.4';
+        });
+      });
+
+      function pushByteBits(packets, byteVal, groupLabel, color) {
+        for (let bit = 7; bit >= 0; bit--) {
+          const b = (byteVal >> bit) & 1;
+          packets.push({ type: 'BIT', label: `D${bit}`, val: b, group: groupLabel, color });
+        }
+      }
+
+      function executeBusTransaction() {
+        const targetAddrHex = document.getElementById('sim-target-addr').value;
+        const targetAddrInt = parseInt(targetAddrHex, 16);
+        const regAddrHex = document.getElementById('sim-reg-addr').value;
+        const regAddrInt = parseInt(regAddrHex, 16);
+
+        let writeRaw = document.getElementById('sim-write-val').value.trim();
+        let writeByte = parseInt(writeRaw, 16);
+        if (isNaN(writeByte) || writeByte < 0 || writeByte > 255) {
+          writeByte = 0x55;
+          document.getElementById('sim-write-val').value = '0x55';
+        }
+
+        const logEl = document.getElementById('sim-log-output');
+        const statusPill = document.getElementById('sim-status-pill');
+        const slave = slaveDevices[targetAddrHex];
+
+        // Highlight active slave card
+        document.querySelectorAll('.slave-card').forEach(c => c.classList.remove('ring-2', 'ring-cyan-500'));
+        if (slave) {
+          const card = document.getElementById(`card-slave-${targetAddrHex}`);
+          if (card) card.classList.add('ring-2', 'ring-cyan-500');
+        }
+
+        const pkts = [];
+        const logs = [];
+
+        // 1. IDLE -> START
+        pkts.push({ type: 'IDLE', label: 'IDLE', val: 1, color: '#64748b' });
+        pkts.push({ type: 'START', label: 'S', val: 0, color: '#10b981' });
+        logs.push(`<span class="text-emerald-400">[START]</span> Master claims bus.`);
+
+        // 2. 7-Bit Slave Address
+        for (let bit = 6; bit >= 0; bit--) {
+          const b = (targetAddrInt >> bit) & 1;
+          pkts.push({ type: 'BIT', label: `A${bit}`, val: b, group: `ADDR ${targetAddrHex}`, color: '#f59e0b' });
+        }
+
+        // If slave doesn't exist, address phase ends in NACK + STOP
+        if (!slave) {
+          const rwBit = simMode === 'READ' ? 1 : 0;
+          pkts.push({ type: 'BIT', label: rwBit ? 'R' : 'W', val: rwBit, color: '#8b5cf6' });
+          pkts.push({ type: 'NACK', label: 'NACK', val: 1, color: '#f43f5e' });
+          pkts.push({ type: 'STOP', label: 'P', val: 1, color: '#f43f5e' });
+          pkts.push({ type: 'IDLE', label: 'IDLE', val: 1, color: '#64748b' });
+
+          logs.push(`<span class="text-amber-400">[ADDR]</span> Sent ${targetAddrHex} + ${rwBit ? 'READ' : 'WRITE'}.`);
+          logs.push(`<span class="text-rose-400 font-bold">[NACK]</span> No device responded at ${targetAddrHex}! SDA stayed HIGH on 9th clock.`);
+          logs.push(`<span class="text-rose-400">[STOP]</span> Master aborted transaction.`);
+
+          statusPill.textContent = 'NACK ERROR';
+          statusPill.className = 'text-rose-400 font-bold';
+          logEl.innerHTML = logs.map(l => `<div>${l}</div>`).join('');
+          analyzerPackets = pkts;
+          drawAnalyzerWaveform();
+          return;
+        }
+
+        // Valid Slave Exists
+        if (simMode === 'WRITE') {
+          // Write Mode: [S] [ADDR+W] [ACK] [REG_PTR] [ACK] [DATA] [ACK] [P]
+          pkts.push({ type: 'BIT', label: 'W', val: 0, color: '#8b5cf6' });
+          pkts.push({ type: 'ACK', label: 'ACK', val: 0, color: '#10b981' });
+          logs.push(`<span class="text-amber-400">[ADDR]</span> ${targetAddrHex} (${slave.name}) + WRITE → <span class="text-emerald-400">ACK</span>`);
+
+          pushByteBits(pkts, regAddrInt, `REG ${regAddrHex}`, '#06b6d4');
+          pkts.push({ type: 'ACK', label: 'ACK', val: 0, color: '#10b981' });
+          logs.push(`<span class="text-cyan-400">[REG]</span> Pointer set to ${regAddrHex} → <span class="text-emerald-400">ACK</span>`);
+
+          const hexFormatted = '0x' + writeByte.toString(16).toUpperCase().padStart(2, '0');
+          pushByteBits(pkts, writeByte, `DATA ${hexFormatted}`, '#38bdf8');
+          pkts.push({ type: 'ACK', label: 'ACK', val: 0, color: '#10b981' });
+          logs.push(`<span class="text-sky-400">[DATA]</span> Wrote ${hexFormatted} to Reg ${regAddrHex} → <span class="text-emerald-400">ACK</span>`);
+
+          pkts.push({ type: 'STOP', label: 'P', val: 1, color: '#f43f5e' });
+          pkts.push({ type: 'IDLE', label: 'IDLE', val: 1, color: '#64748b' });
+          logs.push(`<span class="text-rose-400">[STOP]</span> Transaction complete.`);
+
+          // Update slave register state
+          slave.regs[regAddrHex] = writeByte;
+          const regDom = document.getElementById(`reg-${targetAddrHex}-${regAddrHex}`);
+          if (regDom) {
+            regDom.textContent = (targetAddrHex === '0x48' && regAddrHex === '0x00')
+              ? `${hexFormatted} (${writeByte}°C)`
+              : hexFormatted;
+          }
+
+          statusPill.textContent = 'WRITE ACK OK';
+          statusPill.className = 'text-emerald-400 font-bold';
+        } else {
+          // Combined Read Mode: [S] [ADDR+W] [ACK] [REG_PTR] [ACK] [Sr (Repeated Start)] [ADDR+R] [ACK] [DATA_FROM_SLAVE] [NACK] [P]
+          pkts.push({ type: 'BIT', label: 'W', val: 0, color: '#8b5cf6' });
+          pkts.push({ type: 'ACK', label: 'ACK', val: 0, color: '#10b981' });
+          logs.push(`<span class="text-amber-400">[ADDR]</span> ${targetAddrHex} + WRITE (to set register ptr) → <span class="text-emerald-400">ACK</span>`);
+
+          pushByteBits(pkts, regAddrInt, `REG ${regAddrHex}`, '#06b6d4');
+          pkts.push({ type: 'ACK', label: 'ACK', val: 0, color: '#10b981' });
+          logs.push(`<span class="text-cyan-400">[REG]</span> Selected Reg ${regAddrHex} → <span class="text-emerald-400">ACK</span>`);
+
+          // Repeated START
+          pkts.push({ type: 'START', label: 'Sr', val: 0, color: '#10b981' });
+          logs.push(`<span class="text-emerald-400">[Sr]</span> Repeated START (Master retains bus without STOP).`);
+
+          for (let bit = 6; bit >= 0; bit--) {
+            const b = (targetAddrInt >> bit) & 1;
+            pkts.push({ type: 'BIT', label: `A${bit}`, val: b, group: `ADDR ${targetAddrHex}`, color: '#f59e0b' });
+          }
+          pkts.push({ type: 'BIT', label: 'R', val: 1, color: '#8b5cf6' });
+          pkts.push({ type: 'ACK', label: 'ACK', val: 0, color: '#10b981' });
+          logs.push(`<span class="text-amber-400">[ADDR]</span> ${targetAddrHex} + READ → <span class="text-emerald-400">ACK</span>`);
+
+          const readVal = slave.regs[regAddrHex] ?? 0x00;
+          const readHex = '0x' + readVal.toString(16).toUpperCase().padStart(2, '0');
+          pushByteBits(pkts, readVal, `READ ${readHex}`, '#10b981');
+          // Master sends NACK on final read byte to tell slave to stop driving SDA
+          pkts.push({ type: 'NACK', label: 'NACK', val: 1, color: '#f43f5e' });
+          pkts.push({ type: 'STOP', label: 'P', val: 1, color: '#f43f5e' });
+          pkts.push({ type: 'IDLE', label: 'IDLE', val: 1, color: '#64748b' });
+
+          logs.push(`<span class="text-emerald-400 font-bold">[READ]</span> Slave returned ${readHex}. Master sent NACK + STOP to end read.`);
+
+          statusPill.textContent = `READ: ${readHex}`;
+          statusPill.className = 'text-cyan-400 font-bold';
+        }
+
+        logEl.innerHTML = logs.map(l => `<div>${l}</div>`).join('');
+        analyzerPackets = pkts;
+        drawAnalyzerWaveform();
+      }
+
+      function drawAnalyzerWaveform() {
+        const canvas = document.getElementById('canvas-analyzer');
+        if (!canvas || analyzerPackets.length === 0) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        const colW = 34;
+        const padL = 52;
+        const padR = 20;
+        const totalW = Math.max(680, padL + padR + analyzerPackets.length * colW);
+        const h = 250;
+
+        canvas.style.width = `${totalW}px`;
+        canvas.style.height = `${h}px`;
+        canvas.width = totalW * dpr;
+        canvas.height = h * dpr;
+
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        ctx.fillStyle = '#060a12';
+        ctx.fillRect(0, 0, totalW, h);
+
+        const sclHighY = 58, sclLowY = 104;
+        const sdaHighY = 142, sdaLowY = 194;
+
+        ctx.font = 'bold 12px JetBrains Mono, monospace';
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillText('SCL', 12, 84);
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillText('SDA', 12, 172);
+
+        // Draw Packet Columns
+        analyzerPackets.forEach((p, idx) => {
+          const x = padL + idx * colW;
+
+          // Subtle background tint for special framing bits
+          if (p.type === 'START' || p.type === 'ACK' || p.type === 'NACK' || p.type === 'STOP') {
+            ctx.fillStyle = p.type === 'NACK' || p.type === 'STOP' ? 'rgba(244, 63, 94, 0.14)' : 'rgba(16, 185, 129, 0.14)';
+            ctx.fillRect(x, 10, colW, h - 22);
+          }
+
+          ctx.strokeStyle = 'rgba(148, 163, 184, 0.12)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x, 32);
+          ctx.lineTo(x, h - 22);
+          ctx.stroke();
+
+          // Top label
+          ctx.fillStyle = p.color || '#cbd5e1';
+          ctx.font = 'bold 10px JetBrains Mono, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(p.label, x + colW / 2, 24);
+
+          // Bottom logic value
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText(p.type === 'IDLE' ? '-' : p.val.toString(), x + colW / 2, h - 8);
+        });
+        ctx.textAlign = 'left';
+
+        // SCL Line
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(padL, sclHighY);
+
+        analyzerPackets.forEach((p, idx) => {
+          const x0 = padL + idx * colW;
+          const x1 = x0 + colW;
+          if (p.type === 'IDLE' || p.type === 'START' || p.type === 'STOP') {
+            ctx.lineTo(x0, sclHighY);
+            ctx.lineTo(x1, sclHighY);
+          } else {
+            const tR = x0 + colW * 0.28;
+            const tF = x0 + colW * 0.78;
+            ctx.lineTo(x0, sclLowY);
+            ctx.lineTo(tR, sclLowY);
+            ctx.lineTo(tR, sclHighY);
+            ctx.lineTo(tF, sclHighY);
+            ctx.lineTo(tF, sclLowY);
+            ctx.lineTo(x1, sclLowY);
+          }
+        });
+        ctx.stroke();
+
+        // SDA Line
+        ctx.strokeStyle = '#06b6d4';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(padL, sdaHighY);
+
+        analyzerPackets.forEach((p, idx) => {
+          const x0 = padL + idx * colW;
+          const x1 = x0 + colW;
+          const yTarget = p.val === 1 ? sdaHighY : sdaLowY;
+
+          if (p.type === 'START') {
+            const xm = x0 + colW * 0.5;
+            ctx.lineTo(x0, sdaHighY);
+            ctx.lineTo(xm, sdaHighY);
+            ctx.lineTo(xm, sdaLowY);
+            ctx.lineTo(x1, sdaLowY);
+          } else if (p.type === 'STOP') {
+            const xm = x0 + colW * 0.5;
+            ctx.lineTo(x0, sdaLowY);
+            ctx.lineTo(xm, sdaLowY);
+            ctx.lineTo(xm, sdaHighY);
+            ctx.lineTo(x1, sdaHighY);
+          } else if (p.type === 'IDLE') {
+            ctx.lineTo(x1, sdaHighY);
+          } else {
+            const xSet = x0 + colW * 0.12;
+            ctx.lineTo(xSet, yTarget);
+            ctx.lineTo(x1, yTarget);
+          }
+        });
+        ctx.stroke();
+      }
+
+      document.getElementById('btn-run-sim').addEventListener('click', executeBusTransaction);
+
+      /* ---------------------------------------------------------------------
+       * 6. MODULE 4: CLOCK STRETCHING & ARBITRATION VISUALIZERS
+       * -------------------------------------------------------------------*/
+      let stretchClocks = 2;
+
+      document.querySelectorAll('.stretch-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          stretchClocks = parseInt(btn.getAttribute('data-stretch'), 10);
+          document.querySelectorAll('.stretch-btn').forEach(b => {
+            if (b === btn) {
+              b.className = 'stretch-btn active-stretch px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-amber-600 text-white border border-amber-500 cursor-pointer';
+            } else {
+              b.className = 'stretch-btn px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-100 dark:bg-lab-card border border-slate-300 dark:border-lab-border cursor-pointer';
+            }
+          });
+          document.getElementById('stretch-caption').textContent = stretchClocks === 0
+            ? 'No clock stretching: Slave is ready immediately, so SCL pulses continuously without pause.'
+            : `Slave holds SCL LOW for ${stretchClocks} clock periods after Bit 8. The Master detects SCL=0 and pauses its clock until the Slave releases SCL.`;
+          drawStretchWaveform();
+        });
+      });
+
+      function drawStretchWaveform() {
+        const canvas = document.getElementById('canvas-stretch');
+        if (!canvas) return;
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width === 0) return;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const w = rect.width;
+        const h = rect.height;
+        ctx.fillStyle = '#070b14';
+        ctx.fillRect(0, 0, w, h);
+
+        const totalSlots = 6 + stretchClocks;
+        const padL = 62, padR = 16;
+        const slotW = (w - padL - padR) / totalSlots;
+
+        const mYHigh = 32, mYLow = 68;
+        const sYHigh = 86, sYLow = 122;
+        const busYHigh = 140, busYLow = 176;
+
+        ctx.font = 'bold 10px JetBrains Mono, monospace';
+        ctx.fillStyle = '#94a3b8'; ctx.fillText('MSTR SCL', 8, 54);
+        ctx.fillStyle = '#10b981'; ctx.fillText('SLV SCL', 8, 108);
+        ctx.fillStyle = '#f59e0b'; ctx.fillText('BUS SCL', 8, 162);
+
+        // Draw slots
+        for (let i = 0; i < totalSlots; i++) {
+          const x0 = padL + i * slotW;
+          const isStretched = i >= 3 && i < 3 + stretchClocks;
+
+          if (isStretched) {
+            ctx.fillStyle = 'rgba(244, 63, 94, 0.16)';
+            ctx.fillRect(x0, 14, slotW, h - 22);
+            ctx.fillStyle = '#fb7185';
+            ctx.fillText('STRETCH', x0 + 4, 24);
+          }
+
+          // Master SCL attempt (releases high during stretch)
+          ctx.strokeStyle = '#64748b';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (isStretched) {
+            ctx.moveTo(x0, mYHigh); ctx.lineTo(x0 + slotW, mYHigh);
+          } else {
+            ctx.moveTo(x0, mYLow); ctx.lineTo(x0 + slotW * 0.3, mYLow);
+            ctx.lineTo(x0 + slotW * 0.3, mYHigh); ctx.lineTo(x0 + slotW * 0.8, mYHigh);
+            ctx.lineTo(x0 + slotW * 0.8, mYLow); ctx.lineTo(x0 + slotW, mYLow);
+          }
+          ctx.stroke();
+
+          // Slave SCL pull-down
+          ctx.strokeStyle = '#10b981';
+          ctx.beginPath();
+          if (isStretched) {
+            ctx.moveTo(x0, sYLow); ctx.lineTo(x0 + slotW, sYLow);
+          } else {
+            ctx.moveTo(x0, sYHigh); ctx.lineTo(x0 + slotW, sYHigh);
+          }
+          ctx.stroke();
+
+          // Resulting Wired-AND Bus SCL
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          if (isStretched) {
+            ctx.moveTo(x0, busYLow); ctx.lineTo(x0 + slotW, busYLow);
+          } else {
+            ctx.moveTo(x0, busYLow); ctx.lineTo(x0 + slotW * 0.3, busYLow);
+            ctx.lineTo(x0 + slotW * 0.3, busYHigh); ctx.lineTo(x0 + slotW * 0.8, busYHigh);
+            ctx.lineTo(x0 + slotW * 0.8, busYLow); ctx.lineTo(x0 + slotW, busYLow);
+          }
+          ctx.stroke();
+        }
+      }
+
+      // Arbitration Visualizer
+      const selArbA = document.getElementById('arb-master-a');
+      const selArbB = document.getElementById('arb-master-b');
+
+      function drawArbitrationWaveform() {
+        const canvas = document.getElementById('canvas-arb');
+        if (!canvas) return;
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width === 0) return;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const w = rect.width;
+        const h = rect.height;
+        ctx.fillStyle = '#070b14';
+        ctx.fillRect(0, 0, w, h);
+
+        const addrA = parseInt(selArbA.value, 16);
+        const addrB = parseInt(selArbB.value, 16);
+
+        const padL = 62, padR = 16;
+        const slotW = (w - padL - padR) / 7;
+
+        const aYHigh = 32, aYLow = 68;
+        const bYHigh = 86, bYLow = 122;
+        const busYHigh = 140, busYLow = 176;
+
+        ctx.font = 'bold 10px JetBrains Mono, monospace';
+        ctx.fillStyle = '#10b981'; ctx.fillText('MSTR A', 10, 54);
+        ctx.fillStyle = '#fb7185'; ctx.fillText('MSTR B', 10, 108);
+        ctx.fillStyle = '#06b6d4'; ctx.fillText('BUS SDA', 10, 162);
+
+        let loser = null; // 'A' or 'B'
+        let lossBit = -1;
+
+        for (let i = 0; i < 7; i++) {
+          const bitIdx = 6 - i;
+          const bitA = (addrA >> bitIdx) & 1;
+          const bitB = (addrB >> bitIdx) & 1;
+
+          // If neither has lost yet, check mismatch
+          if (!loser && bitA !== bitB) {
+            loser = bitA === 1 ? 'A' : 'B';
+            lossBit = bitIdx;
+          }
+
+          const effA = loser === 'A' ? 1 : bitA; // Loser releases SDA (Hi-Z = 1)
+          const effB = loser === 'B' ? 1 : bitB;
+          const busBit = effA & effB;
+
+          const x0 = padL + i * slotW;
+          const x1 = x0 + slotW;
+
+          if (bitIdx === lossBit) {
+            ctx.fillStyle = 'rgba(244, 63, 94, 0.2)';
+            ctx.fillRect(x0, 12, slotW, h - 20);
+            ctx.fillStyle = '#fb7185';
+            ctx.fillText(`MSTR ${loser} LOST!`, x0 + 4, 24);
+          } else {
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText(`A${bitIdx}`, x0 + slotW / 2 - 6, 24);
+          }
+
+          // Trace A
+          ctx.strokeStyle = loser === 'A' && bitIdx <= lossBit ? 'rgba(16,185,129,0.35)' : '#10b981';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x0, effA ? aYHigh : aYLow);
+          ctx.lineTo(x1, effA ? aYHigh : aYLow);
+          ctx.stroke();
+
+          // Trace B
+          ctx.strokeStyle = loser === 'B' && bitIdx <= lossBit ? 'rgba(251,113,133,0.35)' : '#fb7185';
+          ctx.beginPath();
+          ctx.moveTo(x0, effB ? bYHigh : bYLow);
+          ctx.lineTo(x1, effB ? bYHigh : bYLow);
+          ctx.stroke();
+
+          // Wired-AND Bus SDA
+          ctx.strokeStyle = '#06b6d4';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(x0, busBit ? busYHigh : busYLow);
+          ctx.lineTo(x1, busBit ? busYHigh : busYLow);
+          ctx.stroke();
+        }
+
+        const cap = document.getElementById('arb-caption');
+        if (!loser) {
+          cap.textContent = 'Both Masters chose identical target addresses! Arbitration continues into the R/W and Data bytes until one Master outputs a 1 while the other outputs a 0.';
+        } else {
+          const winner = loser === 'A' ? 'Master B' : 'Master A';
+          const loserName = loser === 'A' ? 'Master A' : 'Master B';
+          cap.innerHTML = `<strong>${winner} wins arbitration!</strong> On Address Bit A${lossBit}, ${loserName} released SDA HIGH (1) while ${winner} pulled SDA LOW (0). ${loserName} sensed the mismatch and immediately yielded the bus without corrupting ${winner}'s frame.`;
+        }
+      }
+
+      selArbA.addEventListener('change', drawArbitrationWaveform);
+      selArbB.addEventListener('change', drawArbitrationWaveform);
+
+      /* ---------------------------------------------------------------------
+       * 7. MODULE 5: ENGINEERING QUIZ ENGINE
+       * -------------------------------------------------------------------*/
+      const quizQuestions = [
+        {
+          q: '1. Why must I²C devices use open-drain outputs with external pull-up resistors instead of push-pull outputs?',
+          options: [
+            'To increase the maximum clock speed above 100 MHz',
+            'To prevent high-current short circuits (bus contention) when multiple devices share SDA and SCL',
+            'To eliminate the need for a shared ground reference between ICs',
+            'Because open-drain drivers consume zero power when pulling a line LOW'
+          ],
+          correct: 1,
+          explanation: 'If one device drove a push-pull pin HIGH (VDD) while another drove it LOW (GND), a direct short-circuit would occur. Open-drain drivers only pull LOW or float (Hi-Z).'
+        },
+        {
+          q: '2. Which electrical transition defines a valid I²C START condition?',
+          options: [
+            'SCL transitions HIGH → LOW while SDA is held HIGH',
+            'SDA transitions LOW → HIGH while SCL is held HIGH',
+            'SDA transitions HIGH → LOW while SCL is held HIGH',
+            'Both SDA and SCL transition HIGH → LOW simultaneously'
+          ],
+          correct: 2,
+          explanation: 'A START (S) condition occurs uniquely when SDA falls (HIGH → LOW) while SCL remains HIGH. Conversely, SDA rising (LOW → HIGH) while SCL is HIGH defines a STOP (P) condition.'
+        },
+        {
+          q: '3. During the 9th clock pulse after the Master sends a 7-bit address + Write bit, SDA remains HIGH (logic 1). What does this indicate?',
+          options: [
+            'The addressed slave successfully acknowledged (ACK) the byte',
+            'Clock stretching is currently active on the bus',
+            'A NACK occurred—no slave recognized the address or the slave is busy/missing',
+            'Multi-master arbitration was won by the Master'
+          ],
+          correct: 2,
+          explanation: 'In I²C, ACK is active-LOW (0). If no slave pulls SDA LOW during the 9th SCL clock pulse, the pull-up resistor keeps SDA HIGH, which the Master reads as a NACK.'
+        },
+        {
+          q: '4. An engineer uses 47 kΩ pull-up resistors on a heavily loaded I²C bus (C_bus = 250 pF) running at 400 kHz Fast Mode. Oscilloscope probing shows rounded, slow rising edges that fail to reach V_IH in time. What is the best fix?',
+          options: [
+            'Increase the pull-up resistor value to 100 kΩ',
+            'Decrease the pull-up resistor value (e.g., to 2.2 kΩ or 4.7 kΩ) to reduce the RC time constant',
+            'Remove the pull-up resistors completely',
+            'Add extra capacitors in parallel with SDA and SCL'
+          ],
+          correct: 1,
+          explanation: 'Rise time is proportional to Rp × C_bus. Lowering Rp supplies more charging current from VDD, sharpening the rising edge so it meets the 300 ns Fast Mode specification.'
+        },
+        {
+          q: '5. During multi-master arbitration, Master 1 transmits address bit `1` while Master 2 transmits `0` on the same clock cycle. What happens next?',
+          options: [
+            'Both masters detect a collision, abort immediately, and wait a random backoff time',
+            'The bus voltage settles at 1.65V (half VDD) and corrupts the byte',
+            'Master 1 senses SDA is 0 instead of 1, immediately loses arbitration, and stops driving SDA while Master 2 continues uninterrupted',
+            'Master 1 forces the line HIGH to override Master 2'
+          ],
+          correct: 2,
+          explanation: 'Wired-AND arbitration is non-destructive! Master 1 checks SDA, sees 0 instead of its intended 1, and gracefully switches to listening mode while Master 2 continues without losing a single bit.'
+        }
+      ];
+
+      let userAnswers = new Array(quizQuestions.length).fill(null);
+
+      function renderQuiz() {
+        const container = document.getElementById('quiz-container');
+        container.innerHTML = '';
+
+        quizQuestions.forEach((item, qIdx) => {
+          const card = document.createElement('div');
+          card.className = 'rounded-2xl border border-slate-200 dark:border-lab-border bg-white dark:bg-lab-panel p-5 shadow-sm space-y-3';
+
+          const qTitle = document.createElement('h4');
+          qTitle.className = 'font-bold text-sm sm:text-base';
+          qTitle.textContent = item.q;
+          card.appendChild(qTitle);
+
+          const optsGrid = document.createElement('div');
+          optsGrid.className = 'grid grid-cols-1 gap-2';
+
+          item.options.forEach((optText, oIdx) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            const answered = userAnswers[qIdx] !== null;
+            const isSelected = userAnswers[qIdx] === oIdx;
+            const isCorrect = item.correct === oIdx;
+
+            let btnStyle = 'border-slate-200 dark:border-lab-border bg-slate-50 dark:bg-lab-card hover:border-cyan-500/50 text-slate-700 dark:text-slate-200';
+            if (answered) {
+              if (isCorrect) {
+                btnStyle = 'border-emerald-500 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold';
+              } else if (isSelected && !isCorrect) {
+                btnStyle = 'border-rose-500 bg-rose-500/15 text-rose-700 dark:text-rose-300';
+              } else {
+                btnStyle = 'border-slate-200 dark:border-lab-border bg-slate-50/50 dark:bg-lab-card/50 opacity-60';
+              }
+            }
+
+            btn.className = `w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition cursor-pointer flex items-center gap-3 ${btnStyle}`;
+            btn.innerHTML = `
+              <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-current/30">
+                ${String.fromCharCode(65 + oIdx)}
+              </span>
+              <span>${optText}</span>
+            `;
+
+            btn.addEventListener('click', () => {
+              if (userAnswers[qIdx] !== null) return;
+              userAnswers[qIdx] = oIdx;
+              const score = userAnswers.reduce((acc, ans, idx) => acc + (ans === quizQuestions[idx].correct ? 1 : 0), 0);
+              document.getElementById('quiz-score').textContent = score;
+              renderQuiz();
+            });
+
+            optsGrid.appendChild(btn);
+          });
+
+          card.appendChild(optsGrid);
+
+          if (userAnswers[qIdx] !== null) {
+            const exp = document.createElement('div');
+            const isRight = userAnswers[qIdx] === item.correct;
+            exp.className = `p-3 rounded-xl text-xs leading-relaxed border ${isRight ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-200' : 'bg-amber-500/10 border-amber-500/30 text-amber-800 dark:text-amber-200'}`;
+            exp.innerHTML = `<strong>${isRight ? '✓ Correct!' : '✗ Explanation:'}</strong> ${item.explanation}`;
+            card.appendChild(exp);
+          }
+
+          container.appendChild(card);
+        });
+      }
+
+      document.getElementById('btn-reset-quiz').addEventListener('click', () => {
+        userAnswers = new Array(quizQuestions.length).fill(null);
+        document.getElementById('quiz-score').textContent = '0';
+        renderQuiz();
+      });
+
+      /* ---------------------------------------------------------------------
+       * 8. INITIALIZATION & RESPONSIVE RESIZE HOOKS
+       * -------------------------------------------------------------------*/
+      window.addEventListener('resize', () => {
+        drawRCCurve();
+        drawFramingWaveform();
+        drawAnalyzerWaveform();
+        drawStretchWaveform();
+        drawArbitrationWaveform();
+      });
+
+      window.addEventListener('DOMContentLoaded', () => {
+        updateOpenDrainCircuit();
+        drawRCCurve();
+        updateFramingInspector();
+        drawFramingWaveform();
+        executeBusTransaction();
+        drawStretchWaveform();
+        drawArbitrationWaveform();
+        renderQuiz();
+      });
+    })();
+  </script>
+
+</body></html>
